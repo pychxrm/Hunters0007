@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Completo do Código Q e Fonético</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Manual de Comunicação Rápida</h1>
+        <p>Seu guia completo para o Código Q e Código Fonético Internacional.</p>
+    </header>
+
+    <main>
+        <section class="interactive-tool">
+            <h2>Decodificador de Código Q</h2>
+            <p>Selecione um código para ver o significado instantaneamente.</p>
+            <select id="q-code-selector">
+                <option value="">-- Selecione um Código --</option>
+                <option value="QAP">QAP</option>
+                <option value="QSL">QSL</option>
+                <option value="QTH">QTH</option>
+                <option value="QAR">QAR</option>
+                <option value="QRN">QRN</option>
+                <option value="QRA">QRA</option>
+                <option value="QRL">QRL</option>
+                <option value="QRM">QRM</option>
+                <option value="QRQ">QRQ</option>
+                <option value="QRS">QRS</option>
+                <option value="QRT">QRT</option>
+                <option value="QRU">QRU</option>
+                <option value="QRV">QRV</option>
+                <option value="QRX">QRX</option>
+                <option value="QRZ">QRZ</option>
+                <option value="QSA">QSA</option>
+                <option value="QSM">QSM</option>
+                <option value="QSO">QSO</option>
+                <option value="QSP">QSP</option>
+                <option value="QTC">QTC</option>
+                <option value="QTR">QTR</option>
+                <option value="QTU">QTU</option>
+                <option value="QTA">QTA</option>
+                <option value="QSV">QSV</option>
+                <option value="QSD">QSD</option>
+                <option value="QSJ">QSJ</option>
+                <option value="TKS">TKS</option>
+                <option value="QRB">QRB</option>
+                <option value="QSN">QSN</option>
+                <option value="QSR">QSR</option>
+                <option value="QTN">QTN</option>
+                <option value="QUA">QUA</option>
+                <option value="QTI">QTI</option>
+            </select>
+            <div id="q-code-result" class="result-box">
+                O significado aparecerá aqui...
+            </div>
+        </section>
+
+        <section class="interactive-tool">
+            <h2>Conversor Fonético (OTAN)</h2>
+            <p>Digite uma palavra ou sigla para soletrar.</p>
+            <input type="text" id="phonetic-input" placeholder="Digite aqui (ex: GOLF)">
+            <button id="phonetic-button">Converter</button>
+            <div id="phonetic-result" class="result-box">
+                A conversão aparecerá aqui...
+            </div>
+        </section>
+
+        <section>
+            <h2>O que é o Código Q?</h2>
+            <p>Código Q é um padrão de comunicação adotado internacionalmente, pela força militar, polícia, SAMU, vigilantes / segurança, aviação e empresas privadas, onde através de uma coleção padronizada de 3 letras de fácil pronúncia, todas começando pela letra Q, perguntas pré-definidas são realizadas de maneira simples, rápida e de fácil compreensão.</p>
+            <p>Foi criado em aproximadamente 1909, pelo governo britânico, quando a radiocomunicação foi utilizada pela primeira vez de forma comercial em navios, por voz, onde até então era utilizada somente por código morse.</p>
+        </section>
+
+        <section>
+            <h2>Benefícios do Código Q</h2>
+            <ul>
+                <li>Facilitam a comunicação em línguas diferentes pelo fácil entendimento.</li>
+                <li>Comunicação rápida, economia na utilização de bateria, gerando aumento na autonomia dos radiocomunicadores.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Código Q Completo</h2>
+            <ul>
+                <li><strong>QAP</strong> - Está na escuta?</li>
+                <li><strong>QSL</strong> - Entendido, acusado o recebimento da mensagem.</li>
+                <li><strong>QTH</strong> - Qual endereço, local, posição?</li>
+                <li><strong>QAR</strong> - Desligar.</li>
+                <li><strong>QRN</strong> - Está com interferência na comunicação?</li>
+                <li><strong>QRA</strong> - Qual nome do operador ou da estação (indicativo)?</li>
+                <li><strong>QRL</strong> - Você está ocupado?</li>
+                <li><strong>QRM</strong> - Está sofrendo interferência humana?</li>
+                <li><strong>QRQ</strong> - Transmita mais depressa.</li>
+                <li><strong>QRS</strong> - Transmita mais devagar.</li>
+                <li><strong>QRT</strong> - Devo parar de transmitir? / Fora do ar.</li>
+                <li><strong>QRU</strong> - Tens algo para mim?</li>
+                <li><strong>QRV</strong> - Está preparado? / Às suas ordens.</li>
+                <li><strong>QRX</strong> - Aguarde. / Quando você vai me ligar de novo?</li>
+                <li><strong>QRZ</strong> - Quem está me chamando?</li>
+                <li><strong>QSA</strong> - Como está recebendo? Qual a força do sinal?</li>
+                <li><strong>QSM</strong> - Devo repetir a última mensagem?</li>
+                <li><strong>QSO</strong> - Comunicado, aviso.</li>
+                <li><strong>QSP</strong> - Fazer ponte. Pode transmitir para...?</li>
+                <li><strong>QTC</strong> - Quantas mensagens para enviar? / Tem mensagem para enviar?</li>
+                <li><strong>QTR</strong> - Qual o horário exato?</li>
+                <li><strong>QTU</strong> - Em qual horário irá operar?</li>
+                <li><strong>QTA</strong> - Mensagem cancelada.</li>
+                <li><strong>QSV</strong> - Viatura.</li>
+                <li><strong>QSD</strong> - Motorista.</li>
+                <li><strong>QSJ</strong> - Dinheiro, pagamento.</li>
+                <li><strong>TKS</strong> - Obrigado.</li>
+                <li><strong>QRB</strong> - Qual a distância da sua estação?</li>
+                <li><strong>QSN</strong> - Escutou-me?</li>
+                <li><strong>QSR</strong> - Devo repetir?</li>
+                <li><strong>QTN</strong> - Que horas saiu?</li>
+                <li><strong>QUA</strong> - Você tem notícias de...?</li>
+                <li><strong>QTI</strong> - Qual é o seu rumo verdadeiro? / Rota, caminho.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Código Fonético Internacional (OTAN)</h2>
+            <p>Utilizado para soletrar uma palavra ou código, associando cada letra a uma palavra que se inicia com a letra em questão.</p>
+            <div class="columns">
+                <ul>
+                    <li><strong>A</strong> - Alfa</li>
+                    <li><strong>B</strong> - Bravo</li>
+                    <li><strong>C</strong> - Charlie</li>
+                    <li><strong>D</strong> - Delta</li>
+                    <li><strong>E</strong> - Echo</li>
+                    <li><strong>F</strong> - Fox(trot)</li>
+                    <li><strong>G</strong> - Golf</li>
+                    <li><strong>H</strong> - Hotel</li>
+                    <li><strong>I</strong> - India</li>
+                    <li><strong>J</strong> - Juliett</li>
+                    <li><strong>K</strong> - Kilo</li>
+                    <li><strong>L</strong> - Lima</li>
+                    <li><strong>M</strong> - Mike</li>
+                </ul>
+                <ul>
+                    <li><strong>N</strong> - November</li>
+                    <li><strong>O</strong> - Oscar</li>
+                    <li><strong>P</strong> - Papa</li>
+                    <li><strong>Q</strong> - Quebec</li>
+                    <li><strong>R</strong> - Romeo</li>
+                    <li><strong>S</strong> - Sierra</li>
+                    <li><strong>T</strong> - Tango</li>
+                    <li><strong>U</strong> - Uniform</li>
+                    <li><strong>V</strong> - Victor</li>
+                    <li><strong>W</strong> - Whiskey</li>
+                    <li><strong>X</strong> - X-Ray</li>
+                    <li><strong>Y</strong> - Yankee</li>
+                    <li><strong>Z</strong> - Zulu</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Site criado como exemplo de projeto com hospedagem gratuita no GitHub Pages.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

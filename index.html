@@ -16,6 +16,127 @@
     <!-- jsPDF and html2canvas for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- reCAPTCHA v3 API -->
+    <!-- SUBSTITUA 'YOUR_RECAPTCHA_SITE_KEY' PELA SUA CHAVE DO SITE RECAPTCHA -->
+    <script src="https://www.google.com/recaptcha/api.js?render=YOUR_RECAPTCHA_SITE_KEY"></script>
+    
+    <!-- Firebase SDKs -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+        
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyD0tK6ln3xZAF1SFmH5W4ZzgZ99Uk8ZV5o",
+          authDomain: "projeto-hunter0007.firebaseapp.com",
+          projectId: "projeto-hunter0007",
+          storageBucket: "projeto-hunter0007.appspot.com",
+          messagingSenderId: "516261510729",
+          appId: "1:516261510729:web:d4097289c1ec4ac5854998",
+          measurementId: "G-TMBMNLR8MT"
+        };
+
+        // Initialize Firebase
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            // --- Comments Logic ---
+            const commentsForm = document.getElementById('comments-form');
+            const commentsList = document.getElementById('comments-list');
+
+            if (commentsForm) {
+                commentsForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const submitButton = commentsForm.querySelector('button[type="submit"]');
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Publicando...';
+                    
+                    // Execute reCAPTCHA
+                    grecaptcha.ready(function() {
+                      grecaptcha.execute('YOUR_RECAPTCHA_SITE_KEY', {action: 'submit_comment'}).then(function(token) {
+                          // O reCAPTCHA foi executado. Agora, envie o comentário.
+                          // Para segurança máxima, este 'token' deveria ser verificado no seu backend (usando Firebase Functions)
+                          // antes de salvar o comentário no banco de dados.
+                          
+                          const nameInput = commentsForm.querySelector('input[name="name"]');
+                          const cityInput = commentsForm.querySelector('input[name="city"]');
+                          const commentInput = commentsForm.querySelector('textarea[name="comment"]');
+                          
+                          if (commentInput.value.trim() === '') {
+                              alert('Por favor, escreva um comentário.');
+                              submitButton.disabled = false;
+                              submitButton.textContent = 'Publicar Comentário';
+                              return;
+                          }
+
+                          addDoc(collection(db, "comments"), {
+                              name: nameInput.value.trim() || 'Anônimo',
+                              city: cityInput.value.trim() || '',
+                              text: commentInput.value.trim(),
+                              timestamp: serverTimestamp()
+                          }).then(() => {
+                              commentsForm.reset();
+                          }).catch(err => {
+                              console.error("Erro ao adicionar comentário: ", err);
+                              alert("Ocorreu um erro ao enviar seu comentário.");
+                          }).finally(() => {
+                                submitButton.disabled = false;
+                                submitButton.textContent = 'Publicar Comentário';
+                          });
+                      });
+                    });
+                });
+            }
+            
+            const parseCommentText = (text) => {
+                return text
+                    .replace(/</g, "&lt;").replace(/>/g, "&gt;") // Sanitize HTML first
+                    .replace(/\[b\](.*?)\[\/b\]/g, '<strong>$1</strong>')
+                    .replace(/\[i\](.*?)\[\/i\]/g, '<em>$1</em>')
+                    .replace(/\[s\](.*?)\[\/s\]/g, '<s>$1</s>');
+            };
+
+            // Listen for new comments in real-time
+            const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                if (commentsList) {
+                    commentsList.innerHTML = '';
+                    if (snapshot.empty) {
+                        commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nenhum comentário ainda. Seja o primeiro!</p>';
+                    } else {
+                        snapshot.forEach((doc) => {
+                            const comment = doc.data();
+                            const li = document.createElement('li');
+                            li.className = 'comment-item';
+                            
+                            const date = comment.timestamp ? comment.timestamp.toDate().toLocaleString('pt-BR') : 'Enviando...';
+                            const authorCity = comment.city ? ` - ${comment.city}` : '';
+
+                            li.innerHTML = `
+                                <div class="comment-header">
+                                    <strong>${comment.name}${authorCity}</strong>
+                                    <small>${date}</small>
+                                </div>
+                                <p>${parseCommentText(comment.text)}</p>
+                            `;
+                            commentsList.appendChild(li);
+                        });
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("Erro ao inicializar o Firebase. Verifique sua configuração.", e);
+            const commentsSection = document.getElementById('comments-section');
+            if (commentsSection) {
+                 commentsSection.innerHTML = '<p style="text-align:center; color: #e74c3c;">Não foi possível carregar os comentários. A configuração do Firebase parece estar ausente ou incorreta.</p>';
+            }
+        }
+    </script>
+
 
     <style>
         /* --- GLOBAL CONFIGURATION & CUSTOM PROPERTIES --- */
@@ -200,10 +321,9 @@
         #code-of-the-day p strong { color: var(--primary-color); }
 
         /* --- FORM ELEMENTS & INTERACTIVE TOOLS --- */
-        select, input[type="text"] {
+        select, input[type="text"], textarea {
             width: 100%;
             padding: 12px 15px;
-            margin-top: 10px;
             margin-bottom: 15px;
             border-radius: 8px;
             border: 1px solid var(--input-border-color);
@@ -212,8 +332,16 @@
             background-color: var(--input-bg-color);
             color: var(--text-color-primary);
             transition: all 0.3s ease;
+            font-family: var(--font-main);
         }
-        select:focus, input[type="text"]:focus {
+        #comments-form input, #comments-form textarea {
+             margin-top: 0;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        select:focus, input[type="text"]:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 30%, transparent);
@@ -229,11 +357,15 @@
             border-radius: 8px;
             transition: background-color 0.3s, transform 0.2s;
         }
+        .action-button:disabled {
+            background-color: var(--text-color-secondary);
+            cursor: not-allowed;
+        }
         .action-button {
             background-color: var(--primary-color);
             color: #fff;
         }
-        .action-button:hover {
+        .action-button:hover:not(:disabled) {
             background-color: var(--primary-color-hover);
             transform: translateY(-2px);
         }
@@ -311,7 +443,13 @@
             padding-right: 10px;
         }
         .code-list { list-style: none; padding: 0; margin: 0; }
-        .code-list li { padding: 8px 12px; border-radius: 6px; transition: background-color 0.2s; }
+        .code-list li { 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            transition: background-color 0.2s; 
+            display: flex;
+            align-items: center;
+        }
         .code-list li:hover { background-color: var(--highlight-bg); }
         .columns { display: flex; flex-wrap: wrap; gap: 20px; }
         .columns ul { flex: 1; min-width: 250px; }
@@ -324,7 +462,19 @@
             transform: scale(0.98);
             background-color: color-mix(in srgb, var(--primary-color) 20%, transparent);
         }
-        
+        .speaker-icon {
+            margin-left: auto;
+            color: var(--text-color-secondary);
+            opacity: 0.3;
+            transition: color 0.3s, opacity 0.3s;
+            padding-left: 15px;
+            font-size: 0.9em;
+        }
+        #phonetic-full-list .code-list li:hover .speaker-icon {
+            opacity: 1;
+            color: var(--primary-color);
+        }
+
         .video-container {
             position: relative;
             padding-bottom: 56.25%; /* 16:9 aspect ratio */
@@ -342,6 +492,121 @@
             width: 100%;
             height: 100%;
         }
+
+        /* --- COMMENTS SECTION --- */
+        #comment-author-details {
+            display: flex;
+            gap: 15px;
+            position: relative;
+        }
+        #comment-author-details > div { flex: 1; }
+        #comment-author-details input { margin-bottom: 0; }
+        
+        .autocomplete-suggestions {
+            position: absolute;
+            border: 1px solid var(--input-border-color);
+            border-top: none;
+            z-index: 99;
+            top: 45px;
+            left: 0;
+            right: 0;
+            background-color: var(--input-bg-color);
+            border-radius: 0 0 8px 8px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .autocomplete-suggestions div {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .autocomplete-suggestions div:hover {
+            background-color: var(--highlight-bg);
+        }
+        .autocomplete-suggestions .active {
+             background-color: var(--primary-color);
+             color: #fff;
+        }
+
+        #comment-toolbar {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            margin-top: 15px;
+            padding: 8px;
+            background-color: var(--highlight-bg);
+            border-radius: 8px;
+            position: relative;
+        }
+        #comment-toolbar button {
+            background: none;
+            border: none;
+            color: var(--text-color-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        #comment-toolbar button:hover {
+            background-color: color-mix(in srgb, var(--primary-color) 15%, transparent);
+            color: var(--primary-color);
+        }
+        #emoji-picker {
+            display: none;
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            background-color: var(--input-bg-color);
+            border: 1px solid var(--input-border-color);
+            border-radius: 8px;
+            box-shadow: var(--shadow-color) 0px 4px 12px;
+            padding: 10px;
+            width: 280px;
+            z-index: 10;
+        }
+        #emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        #emoji-grid span {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1.2rem;
+            transition: background-color 0.2s;
+        }
+        #emoji-grid span:hover {
+            background-color: var(--highlight-bg);
+        }
+
+        #comments-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .comment-item {
+            background-color: var(--highlight-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        .comment-header small { font-size: 0.8em; }
+        .comment-item p { margin: 0; word-break: break-word; }
 
         /* --- QUIZ STYLES --- */
         .quiz-container { text-align: center; }
@@ -462,7 +727,7 @@
                 background-color: #fff;
                 color: #000;
             }
-            header, footer, .interactive-tool, .video-container, .quiz-container, #back-to-top, .section-title i {
+            header, footer, .interactive-tool, .video-container, .quiz-container, #back-to-top, .section-title i, #comments-section {
                 display: none !important;
             }
             main, .glass-effect {
@@ -486,6 +751,7 @@
             header { padding: 1rem; flex-direction: column; align-items: center; text-align: center; gap: 15px; }
             header .header-content h1 { font-size: 1.5rem; }
             header .header-content p { font-size: 0.9rem; }
+            #comment-author-details { flex-direction: column; gap: 15px; }
             .columns { flex-direction: column; }
             .modal-content { margin: 20% auto; padding: 20px; }
         }
@@ -576,7 +842,7 @@
         <!-- Full Phonetic Alphabet List -->
         <section class="content-section glass-effect">
             <h2 class="section-title"><i class="fa-solid fa-book-atlas"></i> Código Fonético Internacional (OTAN)</h2>
-            <p>Utilizado para soletrar palavras e códigos, associando cada letra a uma palavra padrão para evitar confusão.</p>
+            <p>Utilizado para soletrar palavras e códigos, associando cada letra a uma palavra padrão para evitar confusão. <strong>Clique em um item da lista abaixo para ouvir a pronúncia.</strong></p>
             <p><strong>Observação:</strong> No Brasil, é comum utilizar a expressão <strong>"Xadrez"</strong> para a letra X. Os códigos numerais também são padronizados, por vezes utilizando ordinais para maior clareza.</p>
             <div class="columns" id="phonetic-full-list"></div>
         </section>
@@ -631,6 +897,36 @@
                 </div>
             </div>
         </section>
+
+        <!-- Comments Section -->
+        <section id="comments-section" class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-solid fa-comments"></i> Comentários e Sugestões</h2>
+            <form id="comments-form">
+                <div id="comment-author-details">
+                    <div>
+                         <input type="text" name="name" placeholder="Seu nome (opcional)">
+                    </div>
+                    <div style="position: relative;">
+                         <input type="text" name="city" placeholder="Sua cidade (opcional)" autocomplete="off">
+                         <div class="autocomplete-suggestions"></div>
+                    </div>
+                </div>
+                <div id="comment-toolbar">
+                    <button type="button" data-format="bold" title="Negrito"><i class="fa-solid fa-bold"></i></button>
+                    <button type="button" data-format="italic" title="Itálico"><i class="fa-solid fa-italic"></i></button>
+                    <button type="button" data-format="strike" title="Riscado"><i class="fa-solid fa-strikethrough"></i></button>
+                    <button type="button" id="emoji-btn" title="Emojis"><i class="fa-regular fa-face-smile"></i></button>
+                    <div id="emoji-picker">
+                        <div id="emoji-grid"></div>
+                    </div>
+                </div>
+                <textarea name="comment" placeholder="Deixe seu comentário ou sugestão aqui..." required></textarea>
+                <button type="submit" class="action-button">Publicar Comentário</button>
+            </form>
+            <ul id="comments-list">
+                <!-- Comments will be loaded here by Firebase -->
+            </ul>
+        </section>
     </main>
 
     <footer>
@@ -660,8 +956,11 @@
 
     <button id="back-to-top" title="Voltar ao topo"><i class="fas fa-arrow-up"></i></button>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    <script type="module">
+        // This script is now loaded after the Firebase SDKs in the <head>
+        // All the previous JS logic is now here.
+
+        document.addEventListener('DOMContentLoaded', () => {
         
         // --- DATA (UPDATED BASED ON USER'S IMAGES & FEEDBACK) ---
         const qCodes = {
@@ -711,6 +1010,8 @@
             '8': 'Oitavo',
             '9': 'Nono'
         };
+        
+        let brazilianCities = [];
 
         // --- ELEMENTS ---
         const body = document.body;
@@ -728,6 +1029,15 @@
         const phoneticFullList = document.getElementById('phonetic-full-list');
         const copyQResultBtn = document.getElementById('copy-q-result');
         const copyPhoneticResultBtn = document.getElementById('copy-phonetic-result');
+        
+        // Comments Elements
+        const commentToolbar = document.getElementById('comment-toolbar');
+        const emojiBtn = document.getElementById('emoji-btn');
+        const emojiPicker = document.getElementById('emoji-picker');
+        const emojiGrid = document.getElementById('emoji-grid');
+        const commentTextarea = document.querySelector('#comments-form textarea[name="comment"]');
+        const cityInput = document.querySelector('input[name="city"]');
+        const autocompleteContainer = document.querySelector('.autocomplete-suggestions');
 
         // Quiz Elements
         const qCodeQuizContainer = document.getElementById('q-code-quiz-container');
@@ -774,47 +1084,34 @@
             localStorage.setItem('theme', theme);
         };
         
-        /**
-         * Uses the Web Speech API to speak a given text.
-         * @param {string} text The text to be spoken.
-         */
         const speakText = (text) => {
-            // Stop any speech that is currently active
             window.speechSynthesis.cancel();
-
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'pt-BR'; // Set the language to Brazilian Portuguese
-            utterance.rate = 0.9; // Slightly slower for clarity
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.9;
             window.speechSynthesis.speak(utterance);
         };
 
         const populateLists = () => {
             const sortedQCodes = Object.entries(qCodes).sort((a, b) => a[0].localeCompare(b[0]));
             
-            // Q-Code Selector
             qCodeSelector.innerHTML = '<option value="">-- Selecione um Código --</option>';
-            sortedQCodes.forEach(([code]) => {
-                qCodeSelector.appendChild(new Option(code, code));
-            });
+            sortedQCodes.forEach(([code]) => qCodeSelector.appendChild(new Option(code, code)));
             
-            // Full Q-Code List
             qCodeFullList.innerHTML = sortedQCodes.map(([code, meaning]) => `<li><strong>${code}</strong> - ${meaning}</li>`).join('');
 
-            // Full Phonetic List (with speech synthesis)
             const sortedPhonetic = Object.entries(phoneticAlphabet);
-            phoneticFullList.innerHTML = ''; // Clear existing content
+            phoneticFullList.innerHTML = ''; 
             
             const createClickableList = (entries) => {
                 const ul = document.createElement('ul');
                 ul.className = 'code-list';
                 entries.forEach(([letter, word]) => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<strong>${letter}</strong> - ${word}`;
+                    li.innerHTML = `<strong>${letter}</strong> - ${word}<i class="fa-solid fa-volume-high speaker-icon"></i>`;
                     li.setAttribute('role', 'button');
                     li.setAttribute('tabindex', '0');
-
-                    const wordToSpeak = word.split(' / ')[0]; // Speak the first variant
-                    
+                    const wordToSpeak = word.split(' / ')[0]; 
                     li.addEventListener('click', () => speakText(wordToSpeak));
                     li.addEventListener('keydown', (e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
@@ -822,7 +1119,6 @@
                            speakText(wordToSpeak);
                         }
                     });
-
                     ul.appendChild(li);
                 });
                 return ul;
@@ -848,11 +1144,9 @@
         
         const generateRandomAcronym = () => {
              const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-             const length = Math.floor(Math.random() * 3) + 3; // 3 to 5 chars
+             const length = Math.floor(Math.random() * 3) + 3;
              let result = '';
-             for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-             }
+             for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
              phoneticInput.value = result;
              convertToPhonetic();
         };
@@ -878,11 +1172,8 @@
                  const { jsPDF } = window.jspdf;
                  const content = document.querySelector('main');
                  pdfBtn.textContent = 'Gerando...';
-
-                 html2canvas(content, { 
-                     scale: 2,
-                     backgroundColor: getComputedStyle(body).getPropertyValue('--bg-color-static')
-                 }).then(canvas => {
+                 html2canvas(content, { scale: 2, backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-color-static') })
+                 .then(canvas => {
                      const imgData = canvas.toDataURL('image/png');
                      const pdf = new jsPDF('p', 'mm', 'a4');
                      const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -894,6 +1185,96 @@
              });
         };
 
+        // --- COMMENTS EDITOR & AUTOCOMPLETE ---
+        const fetchCities = async () => {
+            try {
+                const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
+                const data = await response.json();
+                brazilianCities = data.map(city => `${city.nome} - ${city.microrregiao.mesorregiao.UF.sigla}`);
+            } catch (error) {
+                console.error("Erro ao carregar cidades:", error);
+            }
+        };
+
+        const setupCommentsEditor = () => {
+            const emojis = ['😀', '😂', '😍', '🤔', '👍', '👎', '🙏', '🔥', '❤️', '🎉', '🚀', '💡', '✅', '❌'];
+            emojiGrid.innerHTML = emojis.map(e => `<span>${e}</span>`).join('');
+            
+            commentToolbar.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+
+                if (button.id === 'emoji-btn') {
+                    emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+                } else if (button.dataset.format) {
+                    formatComment(button.dataset.format);
+                }
+            });
+
+            emojiGrid.addEventListener('click', (e) => {
+                if (e.target.tagName === 'SPAN') {
+                    insertAtCursor(commentTextarea, e.target.textContent);
+                    emojiPicker.style.display = 'none';
+                }
+            });
+            
+            cityInput.addEventListener('input', (e) => {
+                const value = e.target.value.toLowerCase();
+                autocompleteContainer.innerHTML = '';
+                if (!value) return;
+
+                const suggestions = brazilianCities
+                    .filter(city => city.toLowerCase().includes(value))
+                    .slice(0, 5);
+                
+                suggestions.forEach(suggestion => {
+                    const div = document.createElement('div');
+                    div.textContent = suggestion;
+                    div.addEventListener('click', () => {
+                        cityInput.value = suggestion;
+                        autocompleteContainer.innerHTML = '';
+                    });
+                    autocompleteContainer.appendChild(div);
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+                    emojiPicker.style.display = 'none';
+                }
+                if (!cityInput.contains(e.target)) {
+                    autocompleteContainer.innerHTML = '';
+                }
+            });
+        };
+        
+        const insertAtCursor = (myField, myValue) => {
+            if (myField.selectionStart || myField.selectionStart == '0') {
+                var startPos = myField.selectionStart;
+                var endPos = myField.selectionEnd;
+                myField.value = myField.value.substring(0, startPos) + myValue + myField.value.substring(endPos, myField.value.length);
+                myField.selectionStart = startPos + myValue.length;
+                myField.selectionEnd = startPos + myValue.length;
+            } else {
+                myField.value += myValue;
+            }
+            myField.focus();
+        };
+
+        const formatComment = (format) => {
+            const startTag = `[${format[0]}]`;
+            const endTag = `[/${format[0]}]`;
+            const startPos = commentTextarea.selectionStart;
+            const endPos = commentTextarea.selectionEnd;
+            const selectedText = commentTextarea.value.substring(startPos, endPos);
+            
+            commentTextarea.value = commentTextarea.value.substring(0, startPos) + startTag + selectedText + endTag + commentTextarea.value.substring(endPos, commentTextarea.value.length);
+            
+            commentTextarea.focus();
+            commentTextarea.selectionStart = startPos + startTag.length;
+            commentTextarea.selectionEnd = endPos + startTag.length;
+        };
+
         // --- QUIZ FUNCTIONS ---
 
         const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
@@ -901,22 +1282,12 @@
         const generateQuestions = (type) => {
             const sourceData = type === 'q-code' ? qCodes : phoneticAlphabet;
             const keys = Object.keys(sourceData);
-            const allValues = Object.values(sourceData);
-            if (keys.length < 10) {
-                 console.error("Not enough data to generate a 10-question quiz.");
-                 return [];
-            }
+            if (keys.length < 10) return [];
             const selectedKeys = shuffleArray([...keys]).slice(0, 10);
-
             return selectedKeys.map(correctKey => {
                 const correctAnswer = sourceData[correctKey];
-                let distractors = [];
-                while (distractors.length < 3) {
-                    const randomValue = shuffleArray([...allValues])[0];
-                    if (randomValue !== correctAnswer && !distractors.includes(randomValue)) {
-                        distractors.push(randomValue);
-                    }
-                }
+                let distractors = Object.values(sourceData).filter(v => v !== correctAnswer);
+                distractors = shuffleArray(distractors).slice(0, 3);
                 const options = shuffleArray([correctAnswer, ...distractors]);
                 const questionText = type === 'q-code' ? `Qual o significado de <strong>${correctKey}</strong>?` : `Qual a palavra para <strong>"${correctKey}"</strong>?`;
                 return { question: questionText, options, answer: correctAnswer };
@@ -926,102 +1297,61 @@
         const startTimer = (duration, displayEl) => {
             let timer = duration;
             displayEl.style.display = 'block';
-            const updateDisplay = () => {
-                const minutes = String(Math.floor(timer / 60)).padStart(2, '0');
-                const seconds = String(timer % 60).padStart(2, '0');
-                displayEl.textContent = `${minutes}:${seconds}`;
+            const update = () => {
+                displayEl.textContent = `${String(Math.floor(timer / 60)).padStart(2, '0')}:${String(timer % 60).padStart(2, '0')}`;
+                if (--timer < 0) endQuiz();
             };
-            updateDisplay();
-            timerInterval = setInterval(() => {
-                timer--;
-                updateDisplay();
-                if (timer < 0) endQuiz();
-            }, 1000);
+            update();
+            timerInterval = setInterval(update, 1000);
         };
 
         const handleTrainModeAnswer = (optionsContainer, correctAnswer) => {
-            optionsContainer.addEventListener('change', (e) => {
+            optionsContainer.addEventListener('change', e => {
                 if (e.target.name === 'answer') {
-                    const radios = optionsContainer.querySelectorAll('input[type="radio"]');
                     userAnswers.push(e.target.value);
-                    radios.forEach(radio => {
+                    optionsContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
                         const label = radio.nextElementSibling;
                         radio.disabled = true;
-                        if (radio.value === correctAnswer) {
-                            label.classList.add('correct-feedback');
-                        } else if (radio.checked) {
-                            label.classList.add('incorrect-feedback');
-                        }
+                        if (radio.value === correctAnswer) label.classList.add('correct-feedback');
+                        else if (radio.checked) label.classList.add('incorrect-feedback');
                     });
-                    const nextBtn = optionsContainer.closest('.quiz-area').querySelector('.action-button');
-                    nextBtn.style.display = 'block';
+                    optionsContainer.closest('.quiz-area').querySelector('.action-button').style.display = 'block';
                 }
             }, { once: true });
         };
         
         const displayQuestion = () => {
-            const questionData = quizQuestions[currentQuestionIndex];
-            const elements = currentQuizType === 'q-code' ? 
+            const q = quizQuestions[currentQuestionIndex];
+            const els = currentQuizType === 'q-code' ? 
                 { q: qCodeQuestionEl, a: qCodeAnswerOptionsEl, c: qCodeQuestionCounter, n: nextQCodeQuestionBtn } : 
                 { q: phoneticQuestionEl, a: phoneticAnswerOptionsEl, c: phoneticQuestionCounter, n: nextPhoneticQuestionBtn };
             
-            elements.c.textContent = `Pergunta ${currentQuestionIndex + 1} de 10`;
-            elements.q.innerHTML = questionData.question;
-            elements.a.innerHTML = '';
-            questionData.options.forEach((option, index) => {
-                const li = document.createElement('li');
-                const optionId = `${currentQuizType}-${currentQuizMode}-option-${currentQuestionIndex}-${index}`;
-                li.innerHTML = `
-                    <input type="radio" id="${optionId}" name="answer" value="${option}">
-                    <label for="${optionId}">${option}</label>
-                `;
-                elements.a.appendChild(li);
-            });
-
-            if (currentQuizMode === 'train') {
-                elements.n.style.display = 'none'; // Hide next button until answer is given
-                handleTrainModeAnswer(elements.a, questionData.answer);
-            } else {
-                 elements.n.style.display = 'block';
-            }
-            elements.n.textContent = currentQuestionIndex === 9 ? 'Finalizar Prova' : 'Próxima Pergunta';
+            els.c.textContent = `Pergunta ${currentQuestionIndex + 1} de 10`;
+            els.q.innerHTML = q.question;
+            els.a.innerHTML = q.options.map((opt, i) => `<li><input type="radio" id="${currentQuizType}-${currentQuizMode}-${currentQuestionIndex}-${i}" name="answer" value="${opt}"><label for="${currentQuizType}-${currentQuizMode}-${currentQuestionIndex}-${i}">${opt}</label></li>`).join('');
+            els.n.style.display = currentQuizMode === 'train' ? 'none' : 'block';
+            els.n.textContent = currentQuestionIndex === 9 ? 'Finalizar Prova' : 'Próxima Pergunta';
+            if (currentQuizMode === 'train') handleTrainModeAnswer(els.a, q.answer);
         };
 
         const nextQuestion = () => {
             if (currentQuizMode !== 'train') {
-                const selectedOption = document.querySelector(`div#${currentQuizType}-quiz-area input[name="answer"]:checked`);
-                userAnswers.push(selectedOption ? selectedOption.value : null);
+                const sel = document.querySelector(`div#${currentQuizType}-quiz-area input[name="answer"]:checked`);
+                userAnswers.push(sel ? sel.value : null);
             }
             if (userAnswers[currentQuestionIndex] === quizQuestions[currentQuestionIndex].answer) score++;
-            
-            currentQuestionIndex++;
-            if (currentQuestionIndex < 10) displayQuestion();
+            if (++currentQuestionIndex < 10) displayQuestion();
             else endQuiz();
         };
 
         const endQuiz = () => {
             clearInterval(timerInterval);
-            const elements = currentQuizType === 'q-code' ? 
-                { area: qCodeQuizArea, container: qCodeQuizContainer } : 
-                { area: phoneticQuizArea, container: phoneticQuizContainer };
-            
-            elements.area.style.display = 'none';
-            elements.container.querySelector('.quiz-mode-selector').style.display = 'flex';
-
+            const els = currentQuizType === 'q-code' ? { area: qCodeQuizArea, container: qCodeQuizContainer } : { area: phoneticQuizArea, container: phoneticQuizContainer };
+            els.area.style.display = 'none';
+            els.container.querySelector('.quiz-mode-selector').style.display = 'flex';
             resultsTitle.textContent = `Resultado: ${currentQuizMode === 'train' ? 'Treino' : 'Prova'} de ${currentQuizType === 'q-code' ? 'Código Q' : 'Alfabeto Fonético'}`;
             resultsSummary.innerHTML = `Você acertou <strong>${score} de 10</strong> perguntas!`;
-            resultsDetails.innerHTML = quizQuestions.map((q, i) => {
-                const userAnswer = userAnswers[i];
-                const isCorrect = userAnswer === q.answer;
-                return `
-                    <div class="result-item ${isCorrect ? 'correct' : 'incorrect'}">
-                        <p>${i + 1}. ${q.question}</p>
-                        <p><strong>Sua resposta:</strong> ${userAnswer || 'Nenhuma'}</p>
-                        ${!isCorrect ? `<p><strong>Resposta correta:</strong> ${q.answer}</p>` : ''}
-                    </div>
-                `;
-            }).join('');
-            
+            resultsDetails.innerHTML = quizQuestions.map((q, i) => `<div class="result-item ${userAnswers[i] === q.answer ? 'correct' : 'incorrect'}"><p>${i + 1}. ${q.question}</p><p><strong>Sua resposta:</strong> ${userAnswers[i] || 'Nenhuma'}</p>${userAnswers[i] !== q.answer ? `<p><strong>Resposta correta:</strong> ${q.answer}</p>` : ''}</div>`).join('');
             resultsModal.style.display = 'block';
         };
 
@@ -1029,73 +1359,45 @@
             currentQuizType = type;
             currentQuizMode = mode;
             quizQuestions = generateQuestions(type);
-            if(quizQuestions.length === 0) return;
-            currentQuestionIndex = 0;
-            score = 0;
-            userAnswers = [];
-
-            const elements = type === 'q-code' ? 
-                { container: qCodeQuizContainer, area: qCodeQuizArea, timer: qCodeQuizTimer } : 
-                { container: phoneticQuizContainer, area: phoneticQuizArea, timer: phoneticQuizTimer };
-            
-            elements.container.querySelector('.quiz-mode-selector').style.display = 'none';
-            elements.area.style.display = 'block';
-            
-            if (mode === 'timed') {
-                startTimer(299, elements.timer);
-            } else {
-                elements.timer.style.display = 'none';
-            }
+            if (quizQuestions.length === 0) return;
+            [currentQuestionIndex, score, userAnswers] = [0, 0, []];
+            const els = type === 'q-code' ? { container: qCodeQuizContainer, area: qCodeQuizArea, timer: qCodeQuizTimer } : { container: phoneticQuizContainer, area: phoneticQuizArea, timer: phoneticQuizTimer };
+            els.container.querySelector('.quiz-mode-selector').style.display = 'none';
+            els.area.style.display = 'block';
+            if (mode === 'timed') startTimer(299, els.timer);
+            else els.timer.style.display = 'none';
             displayQuestion();
         };
-
-        // --- INITIALIZATION & EVENT LISTENERS ---
         
         const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         applyTheme(savedTheme);
         populateLists();
         displayCodeOfTheDay();
         setupExportButtons();
+        setupCommentsEditor();
 
         themeSwitcher.addEventListener('click', () => applyTheme(body.classList.contains('dark-theme') ? 'light' : 'dark'));
         window.addEventListener('scroll', () => backToTopBtn.classList.toggle('visible', window.scrollY > 300));
         backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-        qCodeSelector.addEventListener('change', (e) => {
+        qCodeSelector.addEventListener('change', e => {
             const meaning = qCodes[e.target.value];
             qCodeResult.classList.toggle('has-content', !!meaning);
             qCodeResult.textContent = meaning || 'O significado aparecerá aqui...';
         });
-
         phoneticButton.addEventListener('click', convertToPhonetic);
-        phoneticInput.addEventListener('keyup', (e) => e.key === 'Enter' && convertToPhonetic());
+        phoneticInput.addEventListener('keyup', e => e.key === 'Enter' && convertToPhonetic());
         generateAcronymBtn.addEventListener('click', generateRandomAcronym);
-        
-        qCodeSearchInput.addEventListener('input', (e) => {
+        qCodeSearchInput.addEventListener('input', e => {
             const term = e.target.value.toLowerCase();
-            qCodeFullList.querySelectorAll('li').forEach(li => {
-                li.style.display = li.textContent.toLowerCase().includes(term) ? 'block' : 'none';
-            });
+            qCodeFullList.querySelectorAll('li').forEach(li => li.style.display = li.textContent.toLowerCase().includes(term) ? 'block' : 'none');
         });
-
         copyQResultBtn.addEventListener('click', () => copyToClipboard(qCodeResult, copyQResultBtn));
         copyPhoneticResultBtn.addEventListener('click', () => copyToClipboard(phoneticResult, copyPhoneticResultBtn));
-        
-        // Quiz Listeners
-        document.querySelectorAll('.quiz-mode-selector button').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const { quizType, quizMode } = e.currentTarget.dataset;
-                startQuiz(quizType, quizMode);
-            });
-        });
+        document.querySelectorAll('.quiz-mode-selector button').forEach(button => button.addEventListener('click', e => startQuiz(e.currentTarget.dataset.quizType, e.currentTarget.dataset.quizMode)));
         nextQCodeQuestionBtn.addEventListener('click', nextQuestion);
         nextPhoneticQuestionBtn.addEventListener('click', nextQuestion);
-        
-        // Modal Listeners
         closeModalBtn.addEventListener('click', () => resultsModal.style.display = 'none');
-        window.addEventListener('click', (e) => {
-            if (e.target === resultsModal) resultsModal.style.display = 'none';
-        });
+        window.addEventListener('click', e => { if (e.target === resultsModal) resultsModal.style.display = 'none'; });
     });
     </script>
 </body>

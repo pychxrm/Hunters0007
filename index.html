@@ -17,10 +17,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
-    <!-- reCAPTCHA v3 API -->
-    <!-- SUBSTITUA 'YOUR_RECAPTCHA_SITE_KEY' PELA SUA CHAVE DO SITE RECAPTCHA -->
-    <script src="https://www.google.com/recaptcha/api.js?render=YOUR_RECAPTCHA_SITE_KEY"></script>
-    
     <!-- Firebase SDKs -->
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -46,48 +42,63 @@
             // --- Comments Logic ---
             const commentsForm = document.getElementById('comments-form');
             const commentsList = document.getElementById('comments-list');
+            const formLoadTimestamp = Date.now();
 
             if (commentsForm) {
                 commentsForm.addEventListener('submit', (e) => {
                     e.preventDefault();
+
+                    // --- ANTI-SPAM LOGIC ---
+                    // 1. Honeypot check
+                    if (commentsForm.querySelector('input[name="website"]').value !== '') {
+                        console.log("Honeypot field filled. Likely spam.");
+                        return; // Silently fail
+                    }
+
+                    // 2. Time-based check (too fast submission)
+                    if (Date.now() - formLoadTimestamp < 3000) { // Less than 3 seconds
+                        console.log("Form submitted too quickly. Likely spam.");
+                        return; // Silently fail
+                    }
                     
+                    // 3. Rate limiting check (frequency)
+                    const lastCommentTime = localStorage.getItem('lastCommentTime');
+                    if (lastCommentTime && Date.now() - lastCommentTime < 60000) { // Less than 60 seconds
+                        alert('Você está comentando muito rápido. Por favor, aguarde um momento.');
+                        return;
+                    }
+
+                    // --- END ANTI-SPAM ---
+
                     const submitButton = commentsForm.querySelector('button[type="submit"]');
                     submitButton.disabled = true;
                     submitButton.textContent = 'Publicando...';
+                          
+                    const nameInput = commentsForm.querySelector('input[name="name"]');
+                    const cityInput = commentsForm.querySelector('input[name="city"]');
+                    const commentInput = commentsForm.querySelector('textarea[name="comment"]');
                     
-                    // Execute reCAPTCHA
-                    grecaptcha.ready(function() {
-                      grecaptcha.execute('YOUR_RECAPTCHA_SITE_KEY', {action: 'submit_comment'}).then(function(token) {
-                          // O reCAPTCHA foi executado. Agora, envie o comentário.
-                          // Para segurança máxima, este 'token' deveria ser verificado no seu backend (usando Firebase Functions)
-                          // antes de salvar o comentário no banco de dados.
-                          
-                          const nameInput = commentsForm.querySelector('input[name="name"]');
-                          const cityInput = commentsForm.querySelector('input[name="city"]');
-                          const commentInput = commentsForm.querySelector('textarea[name="comment"]');
-                          
-                          if (commentInput.value.trim() === '') {
-                              alert('Por favor, escreva um comentário.');
-                              submitButton.disabled = false;
-                              submitButton.textContent = 'Publicar Comentário';
-                              return;
-                          }
+                    if (commentInput.value.trim() === '') {
+                        alert('Por favor, escreva um comentário.');
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Publicar Comentário';
+                        return;
+                    }
 
-                          addDoc(collection(db, "comments"), {
-                              name: nameInput.value.trim() || 'Anônimo',
-                              city: cityInput.value.trim() || '',
-                              text: commentInput.value.trim(),
-                              timestamp: serverTimestamp()
-                          }).then(() => {
-                              commentsForm.reset();
-                          }).catch(err => {
-                              console.error("Erro ao adicionar comentário: ", err);
-                              alert("Ocorreu um erro ao enviar seu comentário.");
-                          }).finally(() => {
-                                submitButton.disabled = false;
-                                submitButton.textContent = 'Publicar Comentário';
-                          });
-                      });
+                    addDoc(collection(db, "comments"), {
+                        name: nameInput.value.trim() || 'Anônimo',
+                        city: cityInput.value.trim() || '',
+                        text: commentInput.value.trim(),
+                        timestamp: serverTimestamp()
+                    }).then(() => {
+                        commentsForm.reset();
+                        localStorage.setItem('lastCommentTime', Date.now()); // Update rate limit timestamp
+                    }).catch(err => {
+                        console.error("Erro ao adicionar comentário: ", err);
+                        alert("Ocorreu um erro ao enviar seu comentário.");
+                    }).finally(() => {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Publicar Comentário';
                     });
                 });
             }
@@ -494,6 +505,9 @@
         }
 
         /* --- COMMENTS SECTION --- */
+        .honeypot-field {
+            display: none;
+        }
         #comment-author-details {
             display: flex;
             gap: 15px;
@@ -902,6 +916,7 @@
         <section id="comments-section" class="content-section glass-effect">
             <h2 class="section-title"><i class="fa-solid fa-comments"></i> Comentários e Sugestões</h2>
             <form id="comments-form">
+                <input type="text" name="website" class="honeypot-field" autocomplete="off" tabindex="-1">
                 <div id="comment-author-details">
                     <div>
                          <input type="text" name="name" placeholder="Seu nome (opcional)">
@@ -1375,6 +1390,7 @@
         displayCodeOfTheDay();
         setupExportButtons();
         setupCommentsEditor();
+        fetchCities();
 
         themeSwitcher.addEventListener('click', () => applyTheme(body.classList.contains('dark-theme') ? 'light' : 'dark'));
         window.addEventListener('scroll', () => backToTopBtn.classList.toggle('visible', window.scrollY > 300));

@@ -12,6 +12,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- jsPDF and html2canvas for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         /* --- GLOBAL CONFIGURATION & CUSTOM PROPERTIES --- */
@@ -188,6 +192,12 @@
             -webkit-backdrop-filter: blur(12px);
             transition: background 0.4s, border 0.4s, box-shadow 0.4s;
         }
+        
+        /* Code of the Day */
+        #code-of-the-day { text-align: center; }
+        #code-of-the-day h3 { font-size: 1.1rem; color: var(--text-color-secondary); margin-bottom: 5px; }
+        #code-of-the-day p { font-size: 1.3rem; font-weight: 500; margin: 0; }
+        #code-of-the-day p strong { color: var(--primary-color); }
 
         /* --- FORM ELEMENTS & INTERACTIVE TOOLS --- */
         select, input[type="text"] {
@@ -209,11 +219,9 @@
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 30%, transparent);
         }
         
-        .action-button {
+        .action-button, .secondary-button {
             width: 100%;
             padding: 12px;
-            background-color: var(--primary-color);
-            color: #fff;
             font-weight: 500;
             font-size: 1rem;
             cursor: pointer;
@@ -221,8 +229,22 @@
             border-radius: 8px;
             transition: background-color 0.3s, transform 0.2s;
         }
+        .action-button {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
         .action-button:hover {
             background-color: var(--primary-color-hover);
+            transform: translateY(-2px);
+        }
+        .secondary-button {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            margin-top: 10px;
+        }
+        .secondary-button:hover {
+            background-color: var(--highlight-bg);
             transform: translateY(-2px);
         }
         
@@ -314,6 +336,8 @@
 
         /* --- QUIZ STYLES --- */
         .quiz-container { text-align: center; }
+        .quiz-mode-selector { margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; }
+        .quiz-mode-selector button { flex: 1; }
         .quiz-area { display: none; margin-top: 20px; }
         .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: 500; }
         #q-code-quiz-timer, #phonetic-quiz-timer { font-size: 1.1rem; color: var(--primary-color); }
@@ -332,12 +356,26 @@
             border-color: var(--primary-color);
             background-color: var(--highlight-bg);
         }
-        .answer-options input[type="radio"] { display: none; }
         .answer-options input[type="radio"]:checked + label {
             background-color: var(--primary-color);
             color: white;
             border-color: var(--primary-color);
         }
+        .answer-options input[type="radio"]:disabled + label {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .answer-options input[type="radio"]:disabled + label.correct-feedback {
+            background-color: var(--correct-answer-bg);
+            border-color: var(--correct-answer-border);
+            color: var(--text-color-primary);
+        }
+        .answer-options input[type="radio"]:disabled + label.incorrect-feedback {
+            background-color: var(--incorrect-answer-bg);
+            border-color: var(--incorrect-answer-border);
+            color: var(--text-color-primary);
+        }
+
 
         /* --- RESULTS MODAL --- */
         .modal {
@@ -381,31 +419,48 @@
         }
         footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
         footer a:hover { text-decoration: underline; }
-
-        /* Back to Top Button */
-        #back-to-top {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px var(--shadow-color);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(20px);
-            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
-            z-index: 999;
+        .footer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
         }
-        #back-to-top.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+        .footer-buttons button {
+            background: none;
+            border: 1px solid var(--input-border-color);
+            color: var(--text-color-secondary);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .footer-buttons button:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        /* --- PRINT STYLES --- */
+        @media print {
+            body {
+                animation: none;
+                background-image: none;
+                background-color: #fff;
+                color: #000;
+            }
+            header, footer, .interactive-tool, .video-container, .quiz-container, #back-to-top, .section-title i {
+                display: none !important;
+            }
+            main, .glass-effect {
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border: none;
+                background: none;
+                backdrop-filter: none;
+                display: block; /* Ensure sections flow normally */
+            }
+            .content-section { page-break-inside: avoid; }
+            a { color: #000; text-decoration: none; }
         }
 
         /* --- RESPONSIVENESS --- */
@@ -436,6 +491,12 @@
     </header>
 
     <main>
+        <!-- Code of the Day -->
+        <section id="code-of-the-day" class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-solid fa-star"></i> Código do Dia</h2>
+            <p id="daily-code-text"><strong>...</strong> ...</p>
+        </section>
+
         <!-- Interactive Q-Code Decoder -->
         <section class="interactive-tool glass-effect">
             <h2 class="section-title"><i class="fa-solid fa-tower-broadcast"></i> Decodificador de Código Q</h2>
@@ -455,6 +516,7 @@
             <p>Digite uma palavra ou sigla para soletrar no padrão internacional.</p>
             <input type="text" id="phonetic-input" placeholder="Digite aqui (ex: BRAVO ZULU)">
             <button id="phonetic-button" class="action-button">Converter</button>
+            <button id="generate-acronym-btn" class="secondary-button"><i class="fa-solid fa-dice"></i> Gerar Sigla para Treino</button>
             <div class="result-container">
                 <div id="phonetic-result" class="result-box">A conversão aparecerá aqui...</div>
                 <button class="copy-button" id="copy-phonetic-result" title="Copiar Conversão"><i class="fa-regular fa-copy"></i></button>
@@ -517,10 +579,13 @@
             <h2 class="section-title"><i class="fa-solid fa-user-graduate"></i> Provas e Desafios</h2>
             <div class="columns">
                 <!-- Q-Code Quiz -->
-                <div class="quiz-container">
+                <div id="q-code-quiz-container" class="quiz-container">
                     <h3><i class="fa-solid fa-tower-broadcast"></i> Prova: Código Q</h3>
-                    <p>Teste seu conhecimento sobre os códigos Q. Você terá 5 minutos para responder 10 perguntas.</p>
-                    <button id="start-q-code-quiz" class="action-button">Iniciar Prova de Código Q</button>
+                    <p>Teste seu conhecimento sobre os códigos Q. Escolha um modo para começar.</p>
+                    <div class="quiz-mode-selector">
+                         <button class="secondary-button" data-quiz-type="q-code" data-quiz-mode="train">Modo Treino</button>
+                         <button class="action-button" data-quiz-type="q-code" data-quiz-mode="timed">Modo Prova</button>
+                    </div>
                     <div id="q-code-quiz-area" class="quiz-area">
                         <div class="quiz-header">
                             <span id="q-code-question-counter"></span>
@@ -532,10 +597,13 @@
                     </div>
                 </div>
                 <!-- Phonetic Quiz -->
-                <div class="quiz-container">
+                <div id="phonetic-quiz-container" class="quiz-container">
                     <h3><i class="fa-solid fa-spell-check"></i> Prova: Alfabeto Fonético</h3>
-                    <p>Você consegue associar as letras e números aos seus códigos fonéticos? Teste-se em 5 minutos.</p>
-                    <button id="start-phonetic-quiz" class="action-button">Iniciar Prova Fonética</button>
+                    <p>Consegue associar letras e números aos códigos? Escolha um modo para começar.</p>
+                     <div class="quiz-mode-selector">
+                         <button class="secondary-button" data-quiz-type="phonetic" data-quiz-mode="train">Modo Treino</button>
+                         <button class="action-button" data-quiz-type="phonetic" data-quiz-mode="timed">Modo Prova</button>
+                    </div>
                      <div id="phonetic-quiz-area" class="quiz-area">
                         <div class="quiz-header">
                             <span id="phonetic-question-counter"></span>
@@ -554,6 +622,10 @@
         <p>&copy; 2025 Manual de Comunicação. Desenvolvido por 
             <a href="https://github.com/pychxrm" target="_blank" rel="noopener noreferrer">Thiago Ramos de Freitas</a>.
         </p>
+        <div class="footer-buttons">
+            <button id="print-btn"><i class="fa-solid fa-print"></i> Imprimir</button>
+            <button id="pdf-btn"><i class="fa-solid fa-file-pdf"></i> Salvar como PDF</button>
+        </div>
     </footer>
     
     <!-- Results Modal -->
@@ -629,10 +701,12 @@
         const body = document.body;
         const themeSwitcher = document.getElementById('theme-switcher');
         const backToTopBtn = document.getElementById('back-to-top');
+        const dailyCodeText = document.getElementById('daily-code-text');
         const qCodeSelector = document.getElementById('q-code-selector');
         const qCodeResult = document.getElementById('q-code-result');
         const phoneticInput = document.getElementById('phonetic-input');
         const phoneticButton = document.getElementById('phonetic-button');
+        const generateAcronymBtn = document.getElementById('generate-acronym-btn');
         const phoneticResult = document.getElementById('phonetic-result');
         const qCodeSearchInput = document.getElementById('q-code-search');
         const qCodeFullList = document.getElementById('q-code-full-list');
@@ -641,7 +715,7 @@
         const copyPhoneticResultBtn = document.getElementById('copy-phonetic-result');
 
         // Quiz Elements
-        const startQCodeQuizBtn = document.getElementById('start-q-code-quiz');
+        const qCodeQuizContainer = document.getElementById('q-code-quiz-container');
         const qCodeQuizArea = document.getElementById('q-code-quiz-area');
         const qCodeQuestionCounter = document.getElementById('q-code-question-counter');
         const qCodeQuizTimer = document.getElementById('q-code-quiz-timer');
@@ -649,7 +723,7 @@
         const qCodeAnswerOptionsEl = document.getElementById('q-code-answer-options');
         const nextQCodeQuestionBtn = document.getElementById('next-q-code-question');
 
-        const startPhoneticQuizBtn = document.getElementById('start-phonetic-quiz');
+        const phoneticQuizContainer = document.getElementById('phonetic-quiz-container');
         const phoneticQuizArea = document.getElementById('phonetic-quiz-area');
         const phoneticQuestionCounter = document.getElementById('phonetic-question-counter');
         const phoneticQuizTimer = document.getElementById('phonetic-quiz-timer');
@@ -664,8 +738,13 @@
         const resultsSummary = document.getElementById('results-summary');
         const resultsDetails = document.getElementById('results-details');
         
+        // Footer Buttons
+        const printBtn = document.getElementById('print-btn');
+        const pdfBtn = document.getElementById('pdf-btn');
+
         // Quiz State
         let currentQuizType = null;
+        let currentQuizMode = null; // 'timed' or 'train'
         let quizQuestions = [];
         let currentQuestionIndex = 0;
         let score = 0;
@@ -674,22 +753,17 @@
 
         // --- CORE FUNCTIONS ---
 
-        /**
-         * Applies a theme to the page and saves the preference.
-         * @param {string} theme - The theme to apply ('light' or 'dark').
-         */
         const applyTheme = (theme) => {
             if (theme === 'dark') body.classList.add('dark-theme');
             else body.classList.remove('dark-theme');
             localStorage.setItem('theme', theme);
         };
 
-        /** Populates all dynamic lists on the page. */
         const populateLists = () => {
             const sortedQCodes = Object.entries(qCodes).sort((a, b) => a[0].localeCompare(b[0]));
             const sortedPhonetic = Object.entries(phoneticAlphabet);
 
-            qCodeSelector.innerHTML = '<option value="">-- Selecione um Código --</option>'; // Clear before populating
+            qCodeSelector.innerHTML = '<option value="">-- Selecione um Código --</option>';
             sortedQCodes.forEach(([code]) => {
                 qCodeSelector.appendChild(new Option(code, code));
             });
@@ -702,14 +776,30 @@
             phoneticFullList.innerHTML = `<ul class="code-list">${col1}</ul><ul class="code-list">${col2}</ul>`;
         };
 
-        /** Converts text to its phonetic representation. */
+        const displayCodeOfTheDay = () => {
+            const allQCodes = Object.keys(qCodes);
+            const randomCode = allQCodes[Math.floor(Math.random() * allQCodes.length)];
+            const meaning = qCodes[randomCode];
+            dailyCodeText.innerHTML = `<strong>${randomCode}:</strong> ${meaning}`;
+        };
+
         const convertToPhonetic = () => {
             const text = phoneticInput.value.toUpperCase().trim();
             phoneticResult.classList.toggle('has-content', text !== '');
             phoneticResult.textContent = text === '' ? 'A conversão aparecerá aqui...' : [...text].map(char => phoneticAlphabet[char] || char).join(' ');
         };
+        
+        const generateRandomAcronym = () => {
+             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+             const length = Math.floor(Math.random() * 3) + 3; // 3 to 5 chars
+             let result = '';
+             for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+             }
+             phoneticInput.value = result;
+             convertToPhonetic();
+        };
 
-        /** Handles copy to clipboard with user feedback. */
         const copyToClipboard = (contentEl, buttonEl) => {
             const text = contentEl.textContent;
             if (!text || text.includes('aparecerá aqui...')) return;
@@ -723,17 +813,34 @@
                 }, 2000);
             });
         };
+        
+        // --- PRINT & PDF ---
+        const setupExportButtons = () => {
+             printBtn.addEventListener('click', () => window.print());
+             pdfBtn.addEventListener('click', () => {
+                 const { jsPDF } = window.jspdf;
+                 const content = document.querySelector('main');
+                 pdfBtn.textContent = 'Gerando...';
+
+                 html2canvas(content, { 
+                     scale: 2,
+                     backgroundColor: getComputedStyle(body).getPropertyValue('--bg-color-static')
+                 }).then(canvas => {
+                     const imgData = canvas.toDataURL('image/png');
+                     const pdf = new jsPDF('p', 'mm', 'a4');
+                     const pdfWidth = pdf.internal.pageSize.getWidth();
+                     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                     pdf.save('manual-de-comunicacao.pdf');
+                     pdfBtn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Salvar como PDF';
+                 });
+             });
+        };
 
         // --- QUIZ FUNCTIONS ---
 
-        /**
-         * Shuffles an array in place.
-         * @param {Array} array Array to shuffle.
-         * @returns {Array} Shuffled array.
-         */
         const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
 
-        /** Generates questions for a quiz. */
         const generateQuestions = (type) => {
             const sourceData = type === 'q-code' ? qCodes : phoneticAlphabet;
             const keys = Object.keys(sourceData);
@@ -759,9 +866,9 @@
             });
         };
 
-        /** Starts the timer for a quiz. */
         const startTimer = (duration, displayEl) => {
             let timer = duration;
+            displayEl.style.display = 'block';
             const updateDisplay = () => {
                 const minutes = String(Math.floor(timer / 60)).padStart(2, '0');
                 const seconds = String(timer % 60).padStart(2, '0');
@@ -775,7 +882,25 @@
             }, 1000);
         };
 
-        /** Displays the current question. */
+        const handleTrainModeAnswer = (optionsContainer, correctAnswer) => {
+            optionsContainer.addEventListener('change', (e) => {
+                if (e.target.name === 'answer') {
+                    const radios = optionsContainer.querySelectorAll('input[type="radio"]');
+                    radios.forEach(radio => {
+                        const label = radio.nextElementSibling;
+                        radio.disabled = true;
+                        if (radio.value === correctAnswer) {
+                            label.classList.add('correct-feedback');
+                        } else if (radio.checked) {
+                            label.classList.add('incorrect-feedback');
+                        }
+                    });
+                    const nextBtn = optionsContainer.closest('.quiz-area').querySelector('.action-button');
+                    nextBtn.style.display = 'block';
+                }
+            }, { once: true });
+        };
+        
         const displayQuestion = () => {
             const questionData = quizQuestions[currentQuestionIndex];
             const elements = currentQuizType === 'q-code' ? 
@@ -787,38 +912,49 @@
             elements.a.innerHTML = '';
             questionData.options.forEach((option, index) => {
                 const li = document.createElement('li');
-                const optionId = `${currentQuizType}-option-${currentQuestionIndex}-${index}`;
+                const optionId = `${currentQuizType}-${currentQuizMode}-option-${currentQuestionIndex}-${index}`;
                 li.innerHTML = `
                     <input type="radio" id="${optionId}" name="answer" value="${option}">
                     <label for="${optionId}">${option}</label>
                 `;
                 elements.a.appendChild(li);
             });
+
+            if (currentQuizMode === 'train') {
+                elements.n.style.display = 'none'; // Hide next button until answer is given
+                handleTrainModeAnswer(elements.a, questionData.answer);
+            } else {
+                 elements.n.style.display = 'block';
+            }
             elements.n.textContent = currentQuestionIndex === 9 ? 'Finalizar Prova' : 'Próxima Pergunta';
         };
 
-        /** Moves to the next question or ends the quiz. */
         const nextQuestion = () => {
-            const selectedOption = document.querySelector(`div#${currentQuizType}-quiz-area input[name="answer"]:checked`);
-            userAnswers.push(selectedOption ? selectedOption.value : null);
-            if (selectedOption && selectedOption.value === quizQuestions[currentQuestionIndex].answer) score++;
+            if (currentQuizMode !== 'train') {
+                const selectedOption = document.querySelector(`div#${currentQuizType}-quiz-area input[name="answer"]:checked`);
+                userAnswers.push(selectedOption ? selectedOption.value : null);
+                if (selectedOption && selectedOption.value === quizQuestions[currentQuestionIndex].answer) score++;
+            } else {
+                // In train mode, score is already handled by the event listener
+                const selected = userAnswers[currentQuestionIndex]; // Already pushed in listener
+                if (selected === quizQuestions[currentQuestionIndex].answer) score++;
+            }
             
             currentQuestionIndex++;
             if (currentQuestionIndex < 10) displayQuestion();
             else endQuiz();
         };
 
-        /** Ends the current quiz and shows results. */
         const endQuiz = () => {
             clearInterval(timerInterval);
             const elements = currentQuizType === 'q-code' ? 
-                { start: startQCodeQuizBtn, area: qCodeQuizArea } : 
-                { start: startPhoneticQuizBtn, area: phoneticQuizArea };
+                { area: qCodeQuizArea, container: qCodeQuizContainer } : 
+                { area: phoneticQuizArea, container: phoneticQuizContainer };
             
             elements.area.style.display = 'none';
-            elements.start.style.display = 'block';
+            elements.container.querySelector('.quiz-mode-selector').style.display = 'flex';
 
-            resultsTitle.textContent = `Resultado: Prova ${currentQuizType === 'q-code' ? 'Código Q' : 'Fonética'}`;
+            resultsTitle.textContent = `Resultado: ${currentQuizMode === 'train' ? 'Treino' : 'Prova'} de ${currentQuizType === 'q-code' ? 'Código Q' : 'Alfabeto Fonético'}`;
             resultsSummary.innerHTML = `Você acertou <strong>${score} de 10</strong> perguntas!`;
             resultsDetails.innerHTML = quizQuestions.map((q, i) => {
                 const userAnswer = userAnswers[i];
@@ -835,23 +971,27 @@
             resultsModal.style.display = 'block';
         };
 
-        /** Initializes and starts a quiz. */
-        const startQuiz = (type) => {
+        const startQuiz = (type, mode) => {
             currentQuizType = type;
+            currentQuizMode = mode;
             quizQuestions = generateQuestions(type);
-            if(quizQuestions.length === 0) return; // Don't start if no questions generated
+            if(quizQuestions.length === 0) return;
             currentQuestionIndex = 0;
             score = 0;
             userAnswers = [];
 
             const elements = type === 'q-code' ? 
-                { start: startQCodeQuizBtn, area: qCodeQuizArea, timer: qCodeQuizTimer } : 
-                { start: startPhoneticQuizBtn, area: phoneticQuizArea, timer: phoneticQuizTimer };
+                { container: qCodeQuizContainer, area: qCodeQuizArea, timer: qCodeQuizTimer } : 
+                { container: phoneticQuizContainer, area: phoneticQuizArea, timer: phoneticQuizTimer };
             
-            elements.start.style.display = 'none';
+            elements.container.querySelector('.quiz-mode-selector').style.display = 'none';
             elements.area.style.display = 'block';
             
-            startTimer(299, elements.timer); // 5 minutes = 300 seconds
+            if (mode === 'timed') {
+                startTimer(299, elements.timer);
+            } else {
+                elements.timer.style.display = 'none';
+            }
             displayQuestion();
         };
 
@@ -860,6 +1000,8 @@
         const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         applyTheme(savedTheme);
         populateLists();
+        displayCodeOfTheDay();
+        setupExportButtons();
 
         themeSwitcher.addEventListener('click', () => applyTheme(body.classList.contains('dark-theme') ? 'light' : 'dark'));
         window.addEventListener('scroll', () => backToTopBtn.classList.toggle('visible', window.scrollY > 300));
@@ -873,6 +1015,7 @@
 
         phoneticButton.addEventListener('click', convertToPhonetic);
         phoneticInput.addEventListener('keyup', (e) => e.key === 'Enter' && convertToPhonetic());
+        generateAcronymBtn.addEventListener('click', generateRandomAcronym);
         
         qCodeSearchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
@@ -885,9 +1028,13 @@
         copyPhoneticResultBtn.addEventListener('click', () => copyToClipboard(phoneticResult, copyPhoneticResultBtn));
         
         // Quiz Listeners
-        startQCodeQuizBtn.addEventListener('click', () => startQuiz('q-code'));
+        document.querySelectorAll('.quiz-mode-selector button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const { quizType, quizMode } = e.currentTarget.dataset;
+                startQuiz(quizType, quizMode);
+            });
+        });
         nextQCodeQuestionBtn.addEventListener('click', nextQuestion);
-        startPhoneticQuizBtn.addEventListener('click', () => startQuiz('phonetic'));
         nextPhoneticQuestionBtn.addEventListener('click', nextQuestion);
         
         // Modal Listeners

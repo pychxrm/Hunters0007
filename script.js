@@ -6,40 +6,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Mapeamento de todos os códigos e seus significados
     const significadosQ = {
         'QAP': 'Está na escuta?',
-        'QSL': 'Entendido, acusado o recebimento da mensagem.',
-        'QTH': 'Qual endereço, local, posição?',
+        'QSL': 'Entendido, mensagem recebida.',
+        'QTH': 'Qual é a sua localização/endereço?',
         'QAR': 'Desligar.',
-        'QRN': 'Está com interferência na comunicação?',
-        'QRA': 'Qual nome do operador ou da estação (indicativo)?',
+        'QRN': 'Está com interferência (estática)?',
+        'QRA': 'Qual é o seu nome ou o nome da sua estação (indicativo)?',
         'QRL': 'Você está ocupado?',
-        'QRM': 'Está sofrendo interferência humana?',
-        'QRQ': 'Transmita mais depressa.',
+        'QRM': 'Está sofrendo interferência de outra estação?',
+        'QRQ': 'Transmita mais rápido.',
         'QRS': 'Transmita mais devagar.',
-        'QRT': 'Devo parar de transmitir? / Fora do ar.',
-        'QRU': 'Tens algo para mim?',
-        'QRV': 'Está preparado? / Às suas ordens.',
-        'QRX': 'Aguarde. / Quando você vai me ligar de novo?',
+        'QRT': 'Devo parar de transmitir? / Saindo do ar.',
+        'QRU': 'Tem algo para mim?',
+        'QRV': 'Estou à disposição/pronto.',
+        'QRX': 'Aguarde um momento.',
         'QRZ': 'Quem está me chamando?',
-        'QSA': 'Como está recebendo? Qual a força do sinal?',
+        'QSA': 'Como está a recepção? / Qual a intensidade dos sinais?',
         'QSM': 'Devo repetir a última mensagem?',
-        'QSO': 'Comunicado, aviso.',
-        'QSP': 'Fazer ponte. Pode transmitir para...?',
-        'QTC': 'Quantas mensagens para enviar? / Tem mensagem para enviar?',
-        'QTR': 'Qual o horário exato?',
-        'QTU': 'Em qual horário irá operar?',
-        'QTA': 'Mensagem cancelada.',
+        'QSO': 'Contato, comunicado.',
+        'QSP': 'Pode retransmitir a mensagem para...? (fazer uma ponte)',
+        'QTC': 'Tem alguma mensagem para transmitir?',
+        'QTR': 'Qual é a hora exata?',
+        'QTU': 'Qual é o seu horário de funcionamento?',
+        'QTA': 'Anule a mensagem anterior.',
         'QSV': 'Viatura.',
         'QSD': 'Motorista.',
-        'QSJ': 'Dinheiro, pagamento.',
-        'TKS': 'Obrigado.',
-        'QRB': 'Qual a distância da sua estação?',
-        'QSN': 'Escutou-me?',
-        'QSR': 'Devo repetir?',
-        'QTN': 'Que horas saiu?',
+        'QSJ': 'Dinheiro.',
+        'TKS': 'Obrigado (do inglês "Thanks").',
+        'QRB': 'A que distância aproximada você está da minha estação?',
+        'QSN': 'Você me escutou?',
+        'QSR': 'Precisa que eu repita a chamada?',
+        'QTN': 'A que horas você saiu?',
         'QUA': 'Você tem notícias de...?',
-        'QTI': 'Qual é o seu rumo verdadeiro? / Rota, caminho.'
+        'QTI': 'Qual o seu rumo verdadeiro?'
     };
-
     // 2. Seleciona os elementos HTML
     const seletorCodigoQ = document.getElementById('q-code-selector');
     const resultadoCodigoQ = document.getElementById('q-code-result');
@@ -64,8 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar',
         'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango',
         'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-Ray', 'Y': 'Yankee', 'Z': 'Zulu',
-        '0': 'Zero', '1': 'One', '2': 'Two', '3': 'Three', '4': 'Four',
-        '5': 'Five', '6': 'Six', '7': 'Seven', '8': 'Eight', '9': 'Nine'
+        '0': 'Zero', '1': 'Um', '2': 'Dois', '3': 'Três', '4': 'Quatro',
+        '5': 'Cinco', '6': 'Seis', '7': 'Sete', '8': 'Oito', '9': 'Nove'
     };
 
     // 2. Seleciona os elementos HTML

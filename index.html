@@ -16,138 +16,6 @@
     <!-- jsPDF and html2canvas for PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
-    <!-- Firebase SDKs -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-        
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyD0tK6ln3xZAF1SFmH5W4ZzgZ99Uk8ZV5o",
-          authDomain: "projeto-hunter0007.firebaseapp.com",
-          projectId: "projeto-hunter0007",
-          storageBucket: "projeto-hunter0007.appspot.com",
-          messagingSenderId: "516261510729",
-          appId: "1:516261510729:web:d4097289c1ec4ac5854998",
-          measurementId: "G-TMBMNLR8MT"
-        };
-
-        // Initialize Firebase
-        try {
-            const app = initializeApp(firebaseConfig);
-            const db = getFirestore(app);
-
-            // --- Comments Logic ---
-            const commentsForm = document.getElementById('comments-form');
-            const commentsList = document.getElementById('comments-list');
-            const formLoadTimestamp = Date.now();
-
-            if (commentsForm) {
-                commentsForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-
-                    // --- ANTI-SPAM LOGIC ---
-                    // 1. Honeypot check
-                    if (commentsForm.querySelector('input[name="website"]').value !== '') {
-                        console.log("Honeypot field filled. Likely spam.");
-                        return; // Silently fail
-                    }
-
-                    // 2. Time-based check (too fast submission)
-                    if (Date.now() - formLoadTimestamp < 3000) { // Less than 3 seconds
-                        console.log("Form submitted too quickly. Likely spam.");
-                        return; // Silently fail
-                    }
-                    
-                    // 3. Rate limiting check (frequency)
-                    const lastCommentTime = localStorage.getItem('lastCommentTime');
-                    if (lastCommentTime && Date.now() - lastCommentTime < 60000) { // Less than 60 seconds
-                        alert('Você está comentando muito rápido. Por favor, aguarde um momento.');
-                        return;
-                    }
-
-                    // --- END ANTI-SPAM ---
-
-                    const submitButton = commentsForm.querySelector('button[type="submit"]');
-                    submitButton.disabled = true;
-                    submitButton.textContent = 'Publicando...';
-                          
-                    const nameInput = commentsForm.querySelector('input[name="name"]');
-                    const cityInput = commentsForm.querySelector('input[name="city"]');
-                    const commentInput = commentsForm.querySelector('textarea[name="comment"]');
-                    
-                    if (commentInput.value.trim() === '') {
-                        alert('Por favor, escreva um comentário.');
-                        submitButton.disabled = false;
-                        submitButton.textContent = 'Publicar Comentário';
-                        return;
-                    }
-
-                    addDoc(collection(db, "comments"), {
-                        name: nameInput.value.trim() || 'Anônimo',
-                        city: cityInput.value.trim() || '',
-                        text: commentInput.value.trim(),
-                        timestamp: serverTimestamp()
-                    }).then(() => {
-                        commentsForm.reset();
-                        localStorage.setItem('lastCommentTime', Date.now()); // Update rate limit timestamp
-                    }).catch(err => {
-                        console.error("Erro ao adicionar comentário: ", err);
-                        alert("Ocorreu um erro ao enviar seu comentário.");
-                    }).finally(() => {
-                        submitButton.disabled = false;
-                        submitButton.textContent = 'Publicar Comentário';
-                    });
-                });
-            }
-            
-            const parseCommentText = (text) => {
-                return text
-                    .replace(/</g, "&lt;").replace(/>/g, "&gt;") // Sanitize HTML first
-                    .replace(/\[b\](.*?)\[\/b\]/g, '<strong>$1</strong>')
-                    .replace(/\[i\](.*?)\[\/i\]/g, '<em>$1</em>')
-                    .replace(/\[s\](.*?)\[\/s\]/g, '<s>$1</s>');
-            };
-
-            // Listen for new comments in real-time
-            const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
-            onSnapshot(q, (snapshot) => {
-                if (commentsList) {
-                    commentsList.innerHTML = '';
-                    if (snapshot.empty) {
-                        commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nenhum comentário ainda. Seja o primeiro!</p>';
-                    } else {
-                        snapshot.forEach((doc) => {
-                            const comment = doc.data();
-                            const li = document.createElement('li');
-                            li.className = 'comment-item';
-                            
-                            const date = comment.timestamp ? comment.timestamp.toDate().toLocaleString('pt-BR') : 'Enviando...';
-                            const authorCity = comment.city ? ` - ${comment.city}` : '';
-
-                            li.innerHTML = `
-                                <div class="comment-header">
-                                    <strong>${comment.name}${authorCity}</strong>
-                                    <small>${date}</small>
-                                </div>
-                                <p>${parseCommentText(comment.text)}</p>
-                            `;
-                            commentsList.appendChild(li);
-                        });
-                    }
-                }
-            });
-        } catch (e) {
-            console.error("Erro ao inicializar o Firebase. Verifique sua configuração.", e);
-            const commentsSection = document.getElementById('comments-section');
-            if (commentsSection) {
-                 commentsSection.innerHTML = '<p style="text-align:center; color: #e74c3c;">Não foi possível carregar os comentários. A configuração do Firebase parece estar ausente ou incorreta.</p>';
-            }
-        }
-    </script>
-
 
     <style>
         /* --- GLOBAL CONFIGURATION & CUSTOM PROPERTIES --- */
@@ -386,7 +254,7 @@
             border: 1px solid var(--primary-color);
             margin-top: 10px;
         }
-        .secondary-button:hover {
+        .secondary-button:hover:not(:disabled) {
             background-color: var(--highlight-bg);
             transform: translateY(-2px);
         }
@@ -1055,6 +923,7 @@
         const autocompleteContainer = document.querySelector('.autocomplete-suggestions');
 
         // Quiz Elements
+        const quizStartButtons = document.querySelectorAll('.quiz-mode-selector button');
         const qCodeQuizContainer = document.getElementById('q-code-quiz-container');
         const qCodeQuizArea = document.getElementById('q-code-quiz-area');
         const qCodeQuestionCounter = document.getElementById('q-code-question-counter');
@@ -1083,6 +952,7 @@
         const pdfBtn = document.getElementById('pdf-btn');
 
         // Quiz State
+        let isQuizActive = false;
         let currentQuizType = null;
         let currentQuizMode = null; // 'timed' or 'train'
         let quizQuestions = [];
@@ -1361,6 +1231,9 @@
 
         const endQuiz = () => {
             clearInterval(timerInterval);
+            isQuizActive = false;
+            quizStartButtons.forEach(btn => btn.disabled = false);
+
             const els = currentQuizType === 'q-code' ? { area: qCodeQuizArea, container: qCodeQuizContainer } : { area: phoneticQuizArea, container: phoneticQuizContainer };
             els.area.style.display = 'none';
             els.container.querySelector('.quiz-mode-selector').style.display = 'flex';
@@ -1371,10 +1244,18 @@
         };
 
         const startQuiz = (type, mode) => {
+            if(isQuizActive) return;
+            isQuizActive = true;
+            quizStartButtons.forEach(btn => btn.disabled = true);
+
             currentQuizType = type;
             currentQuizMode = mode;
             quizQuestions = generateQuestions(type);
-            if (quizQuestions.length === 0) return;
+            if (quizQuestions.length === 0) {
+                isQuizActive = false;
+                quizStartButtons.forEach(btn => btn.disabled = false);
+                return;
+            }
             [currentQuestionIndex, score, userAnswers] = [0, 0, []];
             const els = type === 'q-code' ? { container: qCodeQuizContainer, area: qCodeQuizArea, timer: qCodeQuizTimer } : { container: phoneticQuizContainer, area: phoneticQuizArea, timer: phoneticQuizTimer };
             els.container.querySelector('.quiz-mode-selector').style.display = 'none';
@@ -1412,8 +1293,24 @@
         document.querySelectorAll('.quiz-mode-selector button').forEach(button => button.addEventListener('click', e => startQuiz(e.currentTarget.dataset.quizType, e.currentTarget.dataset.quizMode)));
         nextQCodeQuestionBtn.addEventListener('click', nextQuestion);
         nextPhoneticQuestionBtn.addEventListener('click', nextQuestion);
-        closeModalBtn.addEventListener('click', () => resultsModal.style.display = 'none');
-        window.addEventListener('click', e => { if (e.target === resultsModal) resultsModal.style.display = 'none'; });
+        
+        const resetQuizState = () => {
+            if (isQuizActive) {
+                isQuizActive = false;
+                quizStartButtons.forEach(btn => btn.disabled = false);
+            }
+        };
+
+        closeModalBtn.addEventListener('click', () => {
+            resultsModal.style.display = 'none';
+            resetQuizState();
+        });
+        window.addEventListener('click', e => { 
+            if (e.target === resultsModal) {
+                resultsModal.style.display = 'none';
+                resetQuizState();
+            }
+        });
     });
     </script>
 </body>

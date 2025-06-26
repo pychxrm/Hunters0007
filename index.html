@@ -3,176 +3,817 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manual Completo do Código Q e Fonético</title>
+    <title>Manual de Comunicação Profissional | Código Q & Fonético</title>
     
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     
-    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.4.2/uicons-regular-rounded/css/uicons-regular-rounded.css'>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Fonts: Using 'Inter' for a modern, Apple-like feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- GLOBAL CONFIGURATION & CUSTOM PROPERTIES --- */
+        :root {
+            /* Fonts */
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            
+            /* Light Theme (Default) */
+            --bg-color-static: #F0F2F5;
+            --text-color-primary: #1c1e21;
+            --text-color-secondary: #65676b;
+            --header-bg-color: rgba(255, 255, 255, 0.7);
+            --glass-bg: rgba(255, 255, 255, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --primary-color: #007AFF; /* Apple's classic blue */
+            --primary-color-hover: #0056b3;
+            --icon-color: #65676b;
+            --input-bg-color: #FFFFFF;
+            --input-border-color: #ccd0d5;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --highlight-bg: rgba(0, 122, 255, 0.1);
+            --correct-answer-bg: rgba(46, 204, 113, 0.15);
+            --incorrect-answer-bg: rgba(231, 76, 60, 0.15);
+            --correct-answer-border: #2ecc71;
+            --incorrect-answer-border: #e74c3c;
+
+            /* Theme Switcher Icons */
+            --icon-sun-display: block;
+            --icon-moon-display: none;
+            --theme-text-light: "CLARO";
+            --theme-text-dark: "ESCURO";
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            --bg-color-static: #101214;
+            --text-color-primary: #E4E6EB;
+            --text-color-secondary: #B0B3B8;
+            --header-bg-color: rgba(29, 31, 33, 0.7);
+            --glass-bg: rgba(44, 46, 48, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary-color: #0A84FF; /* A slightly brighter blue for dark mode */
+            --primary-color-hover: #3c9bff;
+            --icon-color: #B0B3B8;
+            --input-bg-color: #242526;
+            --input-border-color: #3A3B3C;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --highlight-bg: rgba(10, 132, 255, 0.15);
+            --correct-answer-bg: rgba(46, 204, 113, 0.2);
+            --incorrect-answer-bg: rgba(231, 76, 60, 0.2);
+
+            /* Theme Switcher Icons */
+            --icon-sun-display: none;
+            --icon-moon-display: block;
+        }
+
+        /* Rainbow Background Animation */
+        @keyframes subtle-rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- BASE STYLES --- */
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: var(--font-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color-primary);
+            background-color: var(--bg-color-static);
+            background-image: linear-gradient(125deg, 
+                hsla(210, 80%, 70%, 0.15), 
+                hsla(180, 80%, 70%, 0.15), 
+                hsla(150, 80%, 70%, 0.15), 
+                hsla(240, 80%, 70%, 0.15),
+                hsla(300, 80%, 70%, 0.15)
+            );
+            background-size: 400% 400%;
+            animation: subtle-rainbow 30s ease infinite;
+            transition: color 0.4s, background-color 0.4s;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: var(--header-bg-color);
+            box-shadow: 0 2px 15px var(--shadow-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            transition: background-color 0.4s;
+        }
+        header .header-content h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 1.7rem;
+            font-weight: 700;
+            transition: color 0.4s;
+        }
+        header .header-content p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--text-color-secondary);
+        }
+
+        /* Theme Switcher Button */
+        #theme-switcher {
+            background-color: var(--input-bg-color);
+            border: 1px solid var(--input-border-color);
+            color: var(--text-color-secondary);
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 6px 12px;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        #theme-switcher:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 8px color-mix(in srgb, var(--primary-color) 20%, transparent);
+        }
+        #theme-switcher i { font-size: 1rem; color: var(--primary-color); }
+        #theme-switcher .fa-sun { display: var(--icon-sun-display); }
+        #theme-switcher .fa-moon { display: var(--icon-moon-display); }
+        #theme-text::before { content: var(--theme-text-light); }
+        body.dark-theme #theme-text::before { content: var(--theme-text-dark); }
+
+        /* --- MAIN LAYOUT & SECTIONS --- */
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            gap: 35px;
+        }
+        .section-title {
+            color: var(--text-color-primary);
+            font-weight: 700;
+            border-bottom: 2px solid var(--highlight-bg);
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+        }
+        .section-title:hover i { transform: scale(1.1); }
+
+        /* Glassmorphism Effect */
+        .glass-effect {
+            background: var(--glass-bg);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 var(--shadow-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: background 0.4s, border 0.4s, box-shadow 0.4s;
+        }
+
+        /* --- FORM ELEMENTS & INTERACTIVE TOOLS --- */
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border-color);
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: var(--input-bg-color);
+            color: var(--text-color-primary);
+            transition: all 0.3s ease;
+        }
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 30%, transparent);
+        }
+        
+        .action-button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: #fff;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .action-button:hover {
+            background-color: var(--primary-color-hover);
+            transform: translateY(-2px);
+        }
+        
+        .result-container { position: relative; }
+        .result-box {
+            margin-top: 15px;
+            padding: 15px 45px 15px 15px; /* space for copy button */
+            background-color: var(--input-bg-color);
+            border: 1px solid var(--input-border-color);
+            border-radius: 8px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            text-align: center;
+            color: var(--text-color-secondary);
+            transition: all 0.4s;
+        }
+        .result-box.has-content {
+            color: var(--text-color-primary);
+            border-style: dashed;
+            border-color: var(--primary-color);
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--icon-color);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 5px;
+            opacity: 0.5;
+            transition: opacity 0.3s, color 0.3s;
+        }
+        .copy-button:hover {
+            opacity: 1;
+            color: var(--primary-color);
+        }
+        
+        /* --- CONTENT & LISTS --- */
+        .content-section p { margin-bottom: 1rem; }
+        .content-section ul:not(.code-list) { list-style: none; padding: 0; }
+        .content-section ul:not(.code-list) li {
+            background-color: var(--highlight-bg);
+            margin-bottom: 8px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            transition: background-color 0.4s;
+        }
+        .content-section li strong {
+            color: var(--primary-color);
+            transition: color 0.4s;
+        }
+        
+        #q-code-list-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .code-list { list-style: none; padding: 0; margin: 0; }
+        .code-list li { padding: 8px 12px; border-radius: 6px; transition: background-color 0.2s; }
+        .code-list li:hover { background-color: var(--highlight-bg); }
+        .columns { display: flex; flex-wrap: wrap; gap: 20px; }
+        .columns ul { flex: 1; min-width: 250px; }
+
+        /* --- QUIZ STYLES --- */
+        .quiz-container { text-align: center; }
+        .quiz-area { display: none; margin-top: 20px; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: 500; }
+        #q-code-quiz-timer, #phonetic-quiz-timer { font-size: 1.1rem; color: var(--primary-color); }
+        .question { margin-bottom: 20px; font-size: 1.2rem; font-weight: 500; }
+        .answer-options { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+        .answer-options label {
+            display: block;
+            padding: 12px;
+            background-color: var(--input-bg-color);
+            border: 1px solid var(--input-border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .answer-options label:hover {
+            border-color: var(--primary-color);
+            background-color: var(--highlight-bg);
+        }
+        .answer-options input[type="radio"] { display: none; }
+        .answer-options input[type="radio"]:checked + label {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* --- RESULTS MODAL --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--bg-color-static);
+            margin: 10% auto;
+            padding: 25px 35px;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            position: relative;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--input-border-color); padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; color: var(--primary-color); }
+        .close-button { font-size: 1.8rem; font-weight: bold; cursor: pointer; color: var(--text-color-secondary); }
+        .close-button:hover { color: var(--text-color-primary); }
+        #results-summary { text-align: center; font-size: 1.3rem; margin-bottom: 25px; }
+        #results-details { max-height: 40vh; overflow-y: auto; padding-right: 15px; }
+        .result-item { margin-bottom: 15px; padding: 15px; border-radius: 8px; }
+        .result-item.correct { background-color: var(--correct-answer-bg); border-left: 5px solid var(--correct-answer-border); }
+        .result-item.incorrect { background-color: var(--incorrect-answer-bg); border-left: 5px solid var(--incorrect-answer-border); }
+        .result-item p { margin: 0 0 5px 0; }
+
+        /* --- FOOTER --- */
+        footer {
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: var(--text-color-secondary);
+            border-top: 1px solid var(--input-border-color);
+        }
+        footer a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        footer a:hover { text-decoration: underline; }
+
+        /* Back to Top Button */
+        #back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            z-index: 999;
+        }
+        #back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* --- RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            body { font-size: 15px; }
+            main { padding: 0 15px; margin: 25px auto; gap: 25px; }
+            .glass-effect { padding: 20px; }
+            header { padding: 1rem; flex-direction: column; align-items: center; text-align: center; gap: 15px; }
+            header .header-content h1 { font-size: 1.5rem; }
+            header .header-content p { font-size: 0.9rem; }
+            .columns { flex-direction: column; }
+            .modal-content { margin: 20% auto; padding: 20px; }
+        }
+    </style>
 </head>
 <body>
 
     <header>
         <div class="header-content">
-            <h1>Manual de Comunicação Rápida</h1>
-            <p>Um guia de referência para códigos de comunicação.</p>
+            <h1>Manual de Comunicação</h1>
+            <p>Seu guia de referência para Código Q e Alfabeto Fonético.</p>
         </div>
         <button id="theme-switcher" title="Alternar tema">
-            <div class="theme-icon-container">
-                 <i class="fas fa-sun"></i>
-                 <i class="fas fa-moon"></i>
-            </div>
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
             <span id="theme-text"></span>
         </button>
     </header>
 
     <main>
+        <!-- Interactive Q-Code Decoder -->
         <section class="interactive-tool glass-effect">
-            <h2 class="section-title"><i class="fi fi-rr-wifi-alt"></i> Decodificador de Código Q</h2>
+            <h2 class="section-title"><i class="fa-solid fa-tower-broadcast"></i> Decodificador de Código Q</h2>
             <p>Selecione um código para ver o significado instantaneamente.</p>
             <select id="q-code-selector">
                 <option value="">-- Selecione um Código --</option>
-                <option value="QAP">QAP</option>
-                <option value="QSL">QSL</option>
-                <option value="QTH">QTH</option>
-                <option value="QAR">QAR</option>
-                <option value="QRN">QRN</option>
-                <option value="QRA">QRA</option>
-                <option value="QRL">QRL</option>
-                <option value="QRM">QRM</option>
-                <option value="QRQ">QRQ</option>
-                <option value="QRS">QRS</option>
-                <option value="QRT">QRT</option>
-                <option value="QRU">QRU</option>
-                <option value="QRV">QRV</option>
-                <option value="QRX">QRX</option>
-                <option value="QRZ">QRZ</option>
-                <option value="QSA">QSA</option>
-                <option value="QSM">QSM</option>
-                <option value="QSO">QSO</option>
-                <option value="QSP">QSP</option>
-                <option value="QTC">QTC</option>
-                <option value="QTR">QTR</option>
-                <option value="QTU">QTU</option>
-                <option value="QTA">QTA</option>
-                <option value="QSV">QSV</option>
-                <option value="QSD">QSD</option>
-                <option value="QSJ">QSJ</option>
-                <option value="TKS">TKS</option>
-                <option value="QRB">QRB</option>
-                <option value="QSN">QSN</option>
-                <option value="QSR">QSR</option>
-                <option value="QTN">QTN</option>
-                <option value="QUA">QUA</option>
-                <option value="QTI">QTI</option>
             </select>
-            <div id="q-code-result" class="result-box">O significado aparecerá aqui...</div>
-        </section>
-
-        <section class="interactive-tool glass-effect">
-            <h2 class="section-title"><i class="fi fi-rr-text-check"></i> Conversor Fonético (OTAN)</h2>
-            <p>Digite uma palavra ou sigla para soletrar.</p>
-            <input type="text" id="phonetic-input" placeholder="Digite aqui (ex: GOLF)">
-            <button id="phonetic-button">Converter</button>
-            <div id="phonetic-result" class="result-box">A conversão aparecerá aqui...</div>
-        </section>
-
-        <section class="content-section glass-effect">
-            <h2 class="section-title"><i class="fi fi-rr-info"></i> O que é o Código Q?</h2>
-            <p>Código Q é um padrão de comunicação adotado internacionalmente, pela força militar, polícia, SAMU, vigilantes / segurança, aviação e empresas privadas, onde através de uma coleção padronizada de 3 letras de fácil pronúncia, todas começando pela letra Q, perguntas pré-definidas são realizadas de maneira simples, rápida e de fácil compreensão.</p>
-            <p>Foi criado em aproximadamente 1909, pelo governo britânico, quando a radiocomunicação foi utilizada pela primeira vez de forma comercial em navios, por voz, onde até então era utilizada somente por código morse.</p>
-        </section>
-
-        <section class="content-section glass-effect">
-            <h2 class="section-title"><i class="fi fi-rr-badge-check"></i> Benefícios do Código Q</h2>
-            <ul>
-                <li>Facilitam a comunicação em línguas diferentes pelo fácil entendimento.</li>
-                <li>Comunicação rápida, economia na utilização de bateria, gerando aumento na autonomia dos radiocomunicadores.</li>
-            </ul>
-        </section>
-
-        <section class="content-section glass-effect">
-            <h2 class="section-title"><i class="fi fi-rr-list"></i> Código Q Completo</h2>
-            <ul class="code-list">
-                <li><strong>QAP</strong> - Está na escuta?</li>
-                <li><strong>QSL</strong> - Entendido, acusado o recebimento da mensagem.</li>
-                <li><strong>QTH</strong> - Qual endereço, local, posição?</li>
-                <li><strong>QAR</strong> - Desligar.</li>
-                <li><strong>QRN</strong> - Está com interferência na comunicação?</li>
-                <li><strong>QRA</strong> - Qual nome do operador ou da estação (indicativo)?</li>
-                <li><strong>QRL</strong> - Você está ocupado?</li>
-                <li><strong>QRM</strong> - Está sofrendo interferência humana?</li>
-                <li><strong>QRQ</strong> - Transmita mais depressa.</li>
-                <li><strong>QRS</strong> - Transmita mais devagar.</li>
-                <li><strong>QRT</strong> - Devo parar de transmitir? / Fora do ar.</li>
-                <li><strong>QRU</strong> - Tens algo para mim?</li>
-                <li><strong>QRV</strong> - Está preparado? / Às suas ordens.</li>
-                <li><strong>QRX</strong> - Aguarde. / Quando você vai me ligar de novo?</li>
-                <li><strong>QRZ</strong> - Quem está me chamando?</li>
-                <li><strong>QSA</strong> - Como está recebendo? Qual a força do sinal?</li>
-                <li><strong>QSM</strong> - Devo repetir a última mensagem?</li>
-                <li><strong>QSO</strong> - Comunicado, aviso.</li>
-                <li><strong>QSP</strong> - Fazer ponte. Pode transmitir para...?</li>
-                <li><strong>QTC</strong> - Quantas mensagens para enviar? / Tem mensagem para enviar?</li>
-                <li><strong>QTR</strong> - Qual o horário exato?</li>
-                <li><strong>QTU</strong> - Em qual horário irá operar?</li>
-                <li><strong>QTA</strong> - Mensagem cancelada.</li>
-                <li><strong>QSV</strong> - Viatura.</li>
-                <li><strong>QSD</strong> - Motorista.</li>
-                <li><strong>QSJ</strong> - Dinheiro, pagamento.</li>
-                <li><strong>TKS</strong> - Obrigado.</li>
-                <li><strong>QRB</strong> - Qual a distância da sua estação?</li>
-                <li><strong>QSN</strong> - Escutou-me?</li>
-                <li><strong>QSR</strong> - Devo repetir?</li>
-                <li><strong>QTN</strong> - Que horas saiu?</li>
-                <li><strong>QUA</strong> - Você tem notícias de...?</li>
-                <li><strong>QTI</strong> - Qual é o seu rumo verdadeiro? / Rota, caminho.</li>
-            </ul>
-        </section>
-
-        <section class="content-section glass-effect">
-            <h2 class="section-title"><i class="fi fi-rr-stars"></i> Código Fonético Internacional (OTAN)</h2>
-            <p>Utilizado para soletrar uma palavra ou código, associando cada letra a uma palavra que se inicia com a letra em questão.</p>
-            <div class="columns">
-                <ul>
-                    <li><strong>A</strong> - Alfa</li>
-                    <li><strong>B</strong> - Bravo</li>
-                    <li><strong>C</strong> - Charlie</li>
-                    <li><strong>D</strong> - Delta</li>
-                    <li><strong>E</strong> - Echo</li>
-                    <li><strong>F</strong> - Fox(trot)</li>
-                    <li><strong>G</strong> - Golf</li>
-                    <li><strong>H</strong> - Hotel</li>
-                    <li><strong>I</strong> - India</li>
-                    <li><strong>J</strong> - Juliett</li>
-                    <li><strong>K</strong> - Kilo</li>
-                    <li><strong>L</strong> - Lima</li>
-                    <li><strong>M</strong> - Mike</li>
-                </ul>
-                <ul>
-                    <li><strong>N</strong> - November</li>
-                    <li><strong>O</strong> - Oscar</li>
-                    <li><strong>P</strong> - Papa</li>
-                    <li><strong>Q</strong> - Quebec</li>
-                    <li><strong>R</strong> - Romeo</li>
-                    <li><strong>S</strong> - Sierra</li>
-                    <li><strong>T</strong> - Tango</li>
-                    <li><strong>U</strong> - Uniform</li>
-                    <li><strong>V</strong> - Victor</li>
-                    <li><strong>W</strong> - Whiskey</li>
-                    <li><strong>X</strong> - X-Ray</li>
-                    <li><strong>Y</strong> - Yankee</li>
-                    <li><strong>Z</strong> - Zulu</li>
-                </ul>
+            <div class="result-container">
+                <div id="q-code-result" class="result-box">O significado aparecerá aqui...</div>
+                <button class="copy-button" id="copy-q-result" title="Copiar Significado"><i class="fa-regular fa-copy"></i></button>
             </div>
+        </section>
+
+        <!-- Interactive Phonetic Converter -->
+        <section class="interactive-tool glass-effect">
+            <h2 class="section-title"><i class="fa-solid fa-spell-check"></i> Conversor Fonético (OTAN)</h2>
+            <p>Digite uma palavra ou sigla para soletrar no padrão internacional.</p>
+            <input type="text" id="phonetic-input" placeholder="Digite aqui (ex: BRAVO ZULU)">
+            <button id="phonetic-button" class="action-button">Converter</button>
+            <div class="result-container">
+                <div id="phonetic-result" class="result-box">A conversão aparecerá aqui...</div>
+                <button class="copy-button" id="copy-phonetic-result" title="Copiar Conversão"><i class="fa-regular fa-copy"></i></button>
+            </div>
+        </section>
+
+        <!-- Quiz Section -->
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-solid fa-user-graduate"></i> Provas e Desafios</h2>
+            <div class="columns">
+                <!-- Q-Code Quiz -->
+                <div class="quiz-container">
+                    <h3><i class="fa-solid fa-tower-broadcast"></i> Prova: Código Q</h3>
+                    <p>Teste seu conhecimento sobre os códigos Q. Você terá 5 minutos para responder 10 perguntas.</p>
+                    <button id="start-q-code-quiz" class="action-button">Iniciar Prova de Código Q</button>
+                    <div id="q-code-quiz-area" class="quiz-area">
+                        <div class="quiz-header">
+                            <span id="q-code-question-counter"></span>
+                            <span id="q-code-quiz-timer"></span>
+                        </div>
+                        <p id="q-code-question" class="question"></p>
+                        <ul id="q-code-answer-options" class="answer-options"></ul>
+                        <button id="next-q-code-question" class="action-button" style="margin-top: 20px;">Próxima Pergunta</button>
+                    </div>
+                </div>
+                <!-- Phonetic Quiz -->
+                <div class="quiz-container">
+                    <h3><i class="fa-solid fa-spell-check"></i> Prova: Alfabeto Fonético</h3>
+                    <p>Você consegue associar as letras e números aos seus códigos fonéticos? Teste-se em 5 minutos.</p>
+                    <button id="start-phonetic-quiz" class="action-button">Iniciar Prova Fonética</button>
+                     <div id="phonetic-quiz-area" class="quiz-area">
+                        <div class="quiz-header">
+                            <span id="phonetic-question-counter"></span>
+                            <span id="phonetic-quiz-timer"></span>
+                        </div>
+                        <p id="phonetic-question" class="question"></p>
+                        <ul id="phonetic-answer-options" class="answer-options"></ul>
+                        <button id="next-phonetic-question" class="action-button" style="margin-top: 20px;">Próxima Pergunta</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Informational Sections -->
+        <section class="content-section glass-effect">
+            <div class="columns">
+                <div>
+                    <h2 class="section-title"><i class="fa-solid fa-circle-question"></i> O que é o Código Q?</h2>
+                    <p>O Código Q é um padrão de comunicação adotado internacionalmente que permite transmitir ideias complexas de forma rápida e inequívoca através de códigos de três letras, todos começando com 'Q'.</p>
+                </div>
+                <div>
+                    <h2 class="section-title"><i class="fa-solid fa-star"></i> Benefícios</h2>
+                    <ul>
+                        <li><strong>Universalidade:</strong> Facilita a comunicação entre operadores de diferentes idiomas.</li>
+                        <li><strong>Eficiência:</strong> Acelera a comunicação, economizando tempo e bateria.</li>
+                        <li><strong>Clareza:</strong> Reduz a ambiguidade em ambientes com ruído.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Full Q-Code List with Search -->
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-solid fa-list-ol"></i> Referência Completa: Código Q</h2>
+            <input type="text" id="q-code-search" placeholder="🔎 Buscar por código ou significado...">
+            <div id="q-code-list-container">
+                <ul class="code-list" id="q-code-full-list"></ul>
+            </div>
+        </section>
+
+        <!-- Full Phonetic Alphabet List -->
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-solid fa-book-atlas"></i> Código Fonético Internacional (OTAN)</h2>
+            <p>Utilizado para soletrar palavras e códigos, associando cada letra a uma palavra padrão para evitar confusão.</p>
+            <div class="columns" id="phonetic-full-list"></div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2025 Manual de Comunicação Rápida. Desenvolvido por Thiago Ramos de Freitas | Github.</p>
+        <p>&copy; 2025 Manual de Comunicação. Desenvolvido por 
+            <a href="https://github.com/pychxrm" target="_blank" rel="noopener noreferrer">Thiago Ramos de Freitas</a>.
+        </p>
     </footer>
+    
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="results-title">Resultado da Prova</h2>
+                <span class="close-button" id="close-modal-button">&times;</span>
+            </div>
+            <div id="results-summary"></div>
+            <hr>
+            <h3>Gabarito:</h3>
+            <div id="results-details"></div>
+        </div>
+    </div>
 
-    <script src="script.js"></script>
+
+    <button id="back-to-top" title="Voltar ao topo"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // --- DATA ---
+        const qCodes = {
+            'QAP': 'Na escuta, à disposição.', 'QRA': 'Qual o nome do operador/estação?', 'QRB': 'A qual distância você está?', 'QRL': 'Estou ocupado. Favor não interferir.', 'QRM': 'Estou sofrendo interferência de outra estação.', 'QRN': 'Estou sofrendo interferência estática/natural.', 'QRQ': 'Transmita mais depressa.', 'QRS': 'Transmita mais devagar.', 'QRT': 'Vou parar de transmitir. / Fora do ar.', 'QRU': 'Tem algo para mim? / Novidades?', 'QRV': 'Estou pronto. / Às suas ordens.', 'QRX': 'Aguarde um momento.', 'QRZ': 'Quem está me chamando?', 'QSA': 'Qual a intensidade dos meus sinais? (1-5)', 'QSL': 'Entendido. / Mensagem recebida e compreendida.', 'QSM': 'Devo repetir a última mensagem?', 'QSO': 'É um comunicado / contato.', 'QSP': 'Pode retransmitir para...? (fazer ponte)', 'QTA': 'Anule a mensagem anterior.', 'QTC': 'Tenho mensagem para você.', 'QTH': 'Qual é a sua localização/endereço?', 'QTI': 'Qual é o seu rumo verdadeiro?', 'QTR': 'Qual é a hora exata?', 'QTU': 'Qual o horário de funcionamento da sua estação?', 'QSJ': 'Dinheiro, taxa, pagamento.', 'QAR': 'Desligar / Abandonar a escuta.', 'QSV': 'Viatura.', 'QSD': 'Motorista.', 'TKS': 'Obrigado(a).'
+        };
+
+        const phoneticAlphabet = {
+            'A': 'Alfa', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo', 'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett', 'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar', 'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango', 'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-Ray', 'Y': 'Yankee', 'Z': 'Zulu', '0': 'Zero', '1': 'Uno', '2': 'Dois', '3': 'Três', '4': 'Quatro', '5': 'Cinco', '6': 'Meia', '7': 'Sete', '8': 'Oito', '9': 'Nove'
+        };
+
+        // --- ELEMENTS ---
+        const body = document.body;
+        const themeSwitcher = document.getElementById('theme-switcher');
+        const backToTopBtn = document.getElementById('back-to-top');
+        const qCodeSelector = document.getElementById('q-code-selector');
+        const qCodeResult = document.getElementById('q-code-result');
+        const phoneticInput = document.getElementById('phonetic-input');
+        const phoneticButton = document.getElementById('phonetic-button');
+        const phoneticResult = document.getElementById('phonetic-result');
+        const qCodeSearchInput = document.getElementById('q-code-search');
+        const qCodeFullList = document.getElementById('q-code-full-list');
+        const phoneticFullList = document.getElementById('phonetic-full-list');
+        const copyQResultBtn = document.getElementById('copy-q-result');
+        const copyPhoneticResultBtn = document.getElementById('copy-phonetic-result');
+
+        // Quiz Elements
+        const startQCodeQuizBtn = document.getElementById('start-q-code-quiz');
+        const qCodeQuizArea = document.getElementById('q-code-quiz-area');
+        const qCodeQuestionCounter = document.getElementById('q-code-question-counter');
+        const qCodeQuizTimer = document.getElementById('q-code-quiz-timer');
+        const qCodeQuestionEl = document.getElementById('q-code-question');
+        const qCodeAnswerOptionsEl = document.getElementById('q-code-answer-options');
+        const nextQCodeQuestionBtn = document.getElementById('next-q-code-question');
+
+        const startPhoneticQuizBtn = document.getElementById('start-phonetic-quiz');
+        const phoneticQuizArea = document.getElementById('phonetic-quiz-area');
+        const phoneticQuestionCounter = document.getElementById('phonetic-question-counter');
+        const phoneticQuizTimer = document.getElementById('phonetic-quiz-timer');
+        const phoneticQuestionEl = document.getElementById('phonetic-question');
+        const phoneticAnswerOptionsEl = document.getElementById('phonetic-answer-options');
+        const nextPhoneticQuestionBtn = document.getElementById('next-phonetic-question');
+
+        // Modal Elements
+        const resultsModal = document.getElementById('results-modal');
+        const closeModalBtn = document.getElementById('close-modal-button');
+        const resultsTitle = document.getElementById('results-title');
+        const resultsSummary = document.getElementById('results-summary');
+        const resultsDetails = document.getElementById('results-details');
+        
+        // Quiz State
+        let currentQuizType = null;
+        let quizQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timerInterval;
+        let userAnswers = [];
+
+        // --- CORE FUNCTIONS ---
+
+        /**
+         * Applies a theme to the page and saves the preference.
+         * @param {string} theme - The theme to apply ('light' or 'dark').
+         */
+        const applyTheme = (theme) => {
+            if (theme === 'dark') body.classList.add('dark-theme');
+            else body.classList.remove('dark-theme');
+            localStorage.setItem('theme', theme);
+        };
+
+        /** Populates all dynamic lists on the page. */
+        const populateLists = () => {
+            const sortedQCodes = Object.entries(qCodes).sort((a, b) => a[0].localeCompare(b[0]));
+            const sortedPhonetic = Object.entries(phoneticAlphabet);
+
+            sortedQCodes.forEach(([code]) => {
+                qCodeSelector.appendChild(new Option(code, code));
+            });
+            
+            qCodeFullList.innerHTML = sortedQCodes.map(([code, meaning]) => `<li><strong>${code}</strong> - ${meaning}</li>`).join('');
+
+            const midPoint = Math.ceil(sortedPhonetic.length / 2);
+            const col1 = sortedPhonetic.slice(0, midPoint).map(([l, w]) => `<li><strong>${l}</strong> - ${w}</li>`).join('');
+            const col2 = sortedPhonetic.slice(midPoint).map(([l, w]) => `<li><strong>${l}</strong> - ${w}</li>`).join('');
+            phoneticFullList.innerHTML = `<ul class="code-list">${col1}</ul><ul class="code-list">${col2}</ul>`;
+        };
+
+        /** Converts text to its phonetic representation. */
+        const convertToPhonetic = () => {
+            const text = phoneticInput.value.toUpperCase().trim();
+            phoneticResult.classList.toggle('has-content', text !== '');
+            phoneticResult.textContent = text === '' ? 'A conversão aparecerá aqui...' : [...text].map(char => phoneticAlphabet[char] || char).join(' ');
+        };
+
+        /** Handles copy to clipboard with user feedback. */
+        const copyToClipboard = (contentEl, buttonEl) => {
+            const text = contentEl.textContent;
+            if (!text || text.includes('aparecerá aqui...')) return;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalIcon = buttonEl.innerHTML;
+                buttonEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+                buttonEl.style.color = 'var(--correct-answer-border)';
+                setTimeout(() => {
+                    buttonEl.innerHTML = originalIcon;
+                    buttonEl.style.color = '';
+                }, 2000);
+            });
+        };
+
+        // --- QUIZ FUNCTIONS ---
+
+        /**
+         * Shuffles an array in place.
+         * @param {Array} array Array to shuffle.
+         * @returns {Array} Shuffled array.
+         */
+        const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
+
+        /** Generates questions for a quiz. */
+        const generateQuestions = (type) => {
+            const sourceData = type === 'q-code' ? qCodes : phoneticAlphabet;
+            const keys = Object.keys(sourceData);
+            const allValues = Object.values(sourceData);
+            const selectedKeys = shuffleArray([...keys]).slice(0, 10);
+
+            return selectedKeys.map(correctKey => {
+                const correctAnswer = sourceData[correctKey];
+                let distractors = [];
+                while (distractors.length < 3) {
+                    const randomValue = shuffleArray([...allValues])[0];
+                    if (randomValue !== correctAnswer && !distractors.includes(randomValue)) {
+                        distractors.push(randomValue);
+                    }
+                }
+                const options = shuffleArray([correctAnswer, ...distractors]);
+                const questionText = type === 'q-code' ? `Qual o significado de <strong>${correctKey}</strong>?` : `Qual a palavra para <strong>"${correctKey}"</strong>?`;
+                return { question: questionText, options, answer: correctAnswer };
+            });
+        };
+
+        /** Starts the timer for a quiz. */
+        const startTimer = (duration, displayEl) => {
+            let timer = duration;
+            const updateDisplay = () => {
+                const minutes = String(Math.floor(timer / 60)).padStart(2, '0');
+                const seconds = String(timer % 60).padStart(2, '0');
+                displayEl.textContent = `${minutes}:${seconds}`;
+            };
+            updateDisplay();
+            timerInterval = setInterval(() => {
+                timer--;
+                updateDisplay();
+                if (timer < 0) endQuiz();
+            }, 1000);
+        };
+
+        /** Displays the current question. */
+        const displayQuestion = () => {
+            const questionData = quizQuestions[currentQuestionIndex];
+            const elements = currentQuizType === 'q-code' ? 
+                { q: qCodeQuestionEl, a: qCodeAnswerOptionsEl, c: qCodeQuestionCounter, n: nextQCodeQuestionBtn } : 
+                { q: phoneticQuestionEl, a: phoneticAnswerOptionsEl, c: phoneticQuestionCounter, n: nextPhoneticQuestionBtn };
+            
+            elements.c.textContent = `Pergunta ${currentQuestionIndex + 1} de 10`;
+            elements.q.innerHTML = questionData.question;
+            elements.a.innerHTML = '';
+            questionData.options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <input type="radio" id="option${index}" name="answer" value="${option}">
+                    <label for="option${index}">${option}</label>
+                `;
+                elements.a.appendChild(li);
+            });
+            elements.n.textContent = currentQuestionIndex === 9 ? 'Finalizar Prova' : 'Próxima Pergunta';
+        };
+
+        /** Moves to the next question or ends the quiz. */
+        const nextQuestion = () => {
+            const selectedOption = document.querySelector(`div#${currentQuizType}-quiz-area input[name="answer"]:checked`);
+            userAnswers.push(selectedOption ? selectedOption.value : null);
+            if (selectedOption && selectedOption.value === quizQuestions[currentQuestionIndex].answer) score++;
+            
+            currentQuestionIndex++;
+            if (currentQuestionIndex < 10) displayQuestion();
+            else endQuiz();
+        };
+
+        /** Ends the current quiz and shows results. */
+        const endQuiz = () => {
+            clearInterval(timerInterval);
+            const elements = currentQuizType === 'q-code' ? 
+                { start: startQCodeQuizBtn, area: qCodeQuizArea } : 
+                { start: startPhoneticQuizBtn, area: phoneticQuizArea };
+            
+            elements.area.style.display = 'none';
+            elements.start.style.display = 'block';
+
+            resultsTitle.textContent = `Resultado: Prova ${currentQuizType === 'q-code' ? 'Código Q' : 'Fonética'}`;
+            resultsSummary.innerHTML = `Você acertou <strong>${score} de 10</strong> perguntas!`;
+            resultsDetails.innerHTML = quizQuestions.map((q, i) => {
+                const userAnswer = userAnswers[i];
+                const isCorrect = userAnswer === q.answer;
+                return `
+                    <div class="result-item ${isCorrect ? 'correct' : 'incorrect'}">
+                        <p>${i + 1}. ${q.question}</p>
+                        <p><strong>Sua resposta:</strong> ${userAnswer || 'Nenhuma'}</p>
+                        ${!isCorrect ? `<p><strong>Resposta correta:</strong> ${q.answer}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            resultsModal.style.display = 'block';
+        };
+
+        /** Initializes and starts a quiz. */
+        const startQuiz = (type) => {
+            currentQuizType = type;
+            quizQuestions = generateQuestions(type);
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+
+            const elements = type === 'q-code' ? 
+                { start: startQCodeQuizBtn, area: qCodeQuizArea, timer: qCodeQuizTimer } : 
+                { start: startPhoneticQuizBtn, area: phoneticQuizArea, timer: phoneticQuizTimer };
+            
+            elements.start.style.display = 'none';
+            elements.area.style.display = 'block';
+            
+            startTimer(299, elements.timer); // 5 minutes = 300 seconds
+            displayQuestion();
+        };
+
+        // --- INITIALIZATION & EVENT LISTENERS ---
+        
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+        populateLists();
+
+        themeSwitcher.addEventListener('click', () => applyTheme(body.classList.contains('dark-theme') ? 'light' : 'dark'));
+        window.addEventListener('scroll', () => backToTopBtn.classList.toggle('visible', window.scrollY > 300));
+        backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        qCodeSelector.addEventListener('change', (e) => {
+            const meaning = qCodes[e.target.value];
+            qCodeResult.classList.toggle('has-content', !!meaning);
+            qCodeResult.textContent = meaning || 'O significado aparecerá aqui...';
+        });
+
+        phoneticButton.addEventListener('click', convertToPhonetic);
+        phoneticInput.addEventListener('keyup', (e) => e.key === 'Enter' && convertToPhonetic());
+        
+        qCodeSearchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            qCodeFullList.querySelectorAll('li').forEach(li => {
+                li.style.display = li.textContent.toLowerCase().includes(term) ? 'block' : 'none';
+            });
+        });
+
+        copyQResultBtn.addEventListener('click', () => copyToClipboard(qCodeResult, copyQResultBtn));
+        copyPhoneticResultBtn.addEventListener('click', () => copyToClipboard(phoneticResult, copyPhoneticResultBtn));
+        
+        // Quiz Listeners
+        startQCodeQuizBtn.addEventListener('click', () => startQuiz('q-code'));
+        nextQCodeQuestionBtn.addEventListener('click', nextQuestion);
+        startPhoneticQuizBtn.addEventListener('click', () => startQuiz('phonetic'));
+        nextPhoneticQuestionBtn.addEventListener('click', nextQuestion);
+        
+        // Modal Listeners
+        closeModalBtn.addEventListener('click', () => resultsModal.style.display = 'none');
+        window.addEventListener('click', (e) => {
+            if (e.target === resultsModal) resultsModal.style.display = 'none';
+        });
+    });
+    </script>
 </body>
 </html>

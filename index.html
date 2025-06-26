@@ -293,6 +293,24 @@
         .code-list li:hover { background-color: var(--highlight-bg); }
         .columns { display: flex; flex-wrap: wrap; gap: 20px; }
         .columns ul { flex: 1; min-width: 250px; }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
 
         /* --- QUIZ STYLES --- */
         .quiz-container { text-align: center; }
@@ -469,13 +487,29 @@
                 <ul class="code-list" id="q-code-full-list"></ul>
             </div>
         </section>
+        
+        <!-- YouTube Video Section -->
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-brands fa-youtube"></i> Vídeo Explicativo: Código Q</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/J3TEtL_FxPY" title="Vídeo Explicativo sobre Código Q" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </section>
 
         <!-- Full Phonetic Alphabet List -->
         <section class="content-section glass-effect">
             <h2 class="section-title"><i class="fa-solid fa-book-atlas"></i> Código Fonético Internacional (OTAN)</h2>
             <p>Utilizado para soletrar palavras e códigos, associando cada letra a uma palavra padrão para evitar confusão.</p>
-            <p><strong>Observação:</strong> No Brasil, é comum utilizar a expressão <strong>"Xadrez"</strong> para a letra X.</p>
+            <p><strong>Observação:</strong> No Brasil, é comum utilizar a expressão <strong>"Xadrez"</strong> para a letra X. Os códigos numerais também são padronizados, por vezes utilizando ordinais para maior clareza.</p>
             <div class="columns" id="phonetic-full-list"></div>
+        </section>
+
+        <!-- YouTube Video Section for Phonetic Alphabet -->
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-brands fa-youtube"></i> Vídeo Explicativo: Código Fonético Internacional (OTAN)</h2>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/U8q0IyzG0dw" title="Vídeo Explicativo sobre Código Fonético Internacional (OTAN)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
         </section>
 
         <!-- Quiz Section -->
@@ -542,7 +576,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         
-        // --- DATA (UPDATED BASED ON USER'S IMAGES) ---
+        // --- DATA (UPDATED BASED ON USER'S IMAGES & FEEDBACK) ---
         const qCodes = {
             'QRA': 'Nome do operador',
             'QAP': 'Na escuta',
@@ -570,32 +604,25 @@
         };
 
         const phoneticAlphabet = {
-            'A': 'Alfa',
-            'B': 'Bravo',
-            'C': 'Charlie',
-            'D': 'Delta',
-            'E': 'Echo',
-            'F': 'Fox-Trot',
-            'G': 'Golf',
-            'H': 'Hotel',
-            'I': 'Índia',
-            'J': 'Juliett',
-            'K': 'Kilo',
-            'L': 'Lima',
-            'M': 'Mike',
-            'N': 'November',
-            'O': 'Oscar',
-            'P': 'Papa',
-            'Q': 'Quebec',
-            'R': 'Romeo',
-            'S': 'Sierra',
-            'T': 'Tango',
-            'U': 'Uniform',
-            'V': 'Victor',
-            'W': 'Whiskey',
-            'X': 'Xadrez', // Prioritizing "Xadrez" as per user's image note
-            'Y': 'Yankee',
-            'Z': 'Zulu'
+            'A': 'Alfa',    'B': 'Bravo',    'C': 'Charlie',
+            'D': 'Delta',   'E': 'Echo',     'F': 'Fox-Trot',
+            'G': 'Golf',    'H': 'Hotel',    'I': 'Índia',
+            'J': 'Juliett', 'K': 'Kilo',     'L': 'Lima',
+            'M': 'Mike',    'N': 'November', 'O': 'Oscar',
+            'P': 'Papa',    'Q': 'Quebec',   'R': 'Romeo',
+            'S': 'Sierra',  'T': 'Tango',    'U': 'Uniform',
+            'V': 'Victor',  'W': 'Whiskey',  'X': 'Xadrez',
+            'Y': 'Yankee',  'Z': 'Zulu',
+            '0': 'Negativo / Zero',
+            '1': 'Primeiro / Uno',
+            '2': 'Segundo',
+            '3': 'Terceiro',
+            '4': 'Quarto',
+            '5': 'Quinto',
+            '6': 'Sexto / Meia-dúzia',
+            '7': 'Sétimo',
+            '8': 'Oitavo',
+            '9': 'Nono'
         };
 
         // --- ELEMENTS ---

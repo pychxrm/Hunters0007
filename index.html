@@ -840,478 +840,444 @@
     <button id="back-to-top" title="Voltar ao topo"><i class="fas fa-arrow-up"></i></button>
 
     <script type="module">
-        // This script is now loaded after the Firebase SDKs in the <head>
-        // All the previous JS logic is now here.
+        // The entire JS logic is consolidated here to ensure the DOM is ready.
+        // Import Firebase functions from the CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
         document.addEventListener('DOMContentLoaded', () => {
-        
-        // --- DATA (UPDATED BASED ON USER'S IMAGES & FEEDBACK) ---
-        const qCodes = {
-            'QRA': 'Nome do operador',
-            'QAP': 'Na escuta',
-            'QRV': 'Estou a disposição',
-            'QSA': 'Intensidade do sinal',
-            'QSL': 'Entendido',
-            'QSO': 'Contato pessoal',
-            'QTA': 'Cancelar a última mensagem',
-            'QTC': 'Mensagem',
-            'QTH': 'Local, endereço',
-            'QTI': 'Estou a caminho / Rumo verdadeiro',
-            'QSM': 'Repita a mensagem',
-            'QTR': 'Hora certa',
-            'QRM': 'Interferência',
-            'QRU': 'Novidade, problema',
-            'QRX': 'Aguarde',
-            'QSP': 'Ponte, auxílio',
-            'QSJ': 'Dinheiro, taxa',
-            'QTO': 'Banheiro',
-            'QTU': 'Horário de funcionamento',
-            'QTJ': 'Velocidade do veículo',
-            'QRF': 'Refeição',
-            'VTR': 'Viatura, veículo',
-            'TKS': 'Obrigado'
-        };
-
-        const phoneticAlphabet = {
-            'A': 'Alfa',    'B': 'Bravo',    'C': 'Charlie',
-            'D': 'Delta',   'E': 'Echo',     'F': 'Fox-Trot',
-            'G': 'Golf',    'H': 'Hotel',    'I': 'Índia',
-            'J': 'Juliett', 'K': 'Kilo',     'L': 'Lima',
-            'M': 'Mike',    'N': 'November', 'O': 'Oscar',
-            'P': 'Papa',    'Q': 'Quebec',   'R': 'Romeo',
-            'S': 'Sierra',  'T': 'Tango',    'U': 'Uniform',
-            'V': 'Victor',  'W': 'Whiskey',  'X': 'Xadrez',
-            'Y': 'Yankee',  'Z': 'Zulu',
-            '0': 'Negativo / Zero',
-            '1': 'Primeiro / Uno',
-            '2': 'Segundo',
-            '3': 'Terceiro',
-            '4': 'Quarto',
-            '5': 'Quinto',
-            '6': 'Sexto / Meia-dúzia',
-            '7': 'Sétimo',
-            '8': 'Oitavo',
-            '9': 'Nono'
-        };
-        
-        let brazilianCities = [];
-
-        // --- ELEMENTS ---
-        const body = document.body;
-        const themeSwitcher = document.getElementById('theme-switcher');
-        const backToTopBtn = document.getElementById('back-to-top');
-        const dailyCodeText = document.getElementById('daily-code-text');
-        const qCodeSelector = document.getElementById('q-code-selector');
-        const qCodeResult = document.getElementById('q-code-result');
-        const phoneticInput = document.getElementById('phonetic-input');
-        const phoneticButton = document.getElementById('phonetic-button');
-        const generateAcronymBtn = document.getElementById('generate-acronym-btn');
-        const phoneticResult = document.getElementById('phonetic-result');
-        const qCodeSearchInput = document.getElementById('q-code-search');
-        const qCodeFullList = document.getElementById('q-code-full-list');
-        const phoneticFullList = document.getElementById('phonetic-full-list');
-        const copyQResultBtn = document.getElementById('copy-q-result');
-        const copyPhoneticResultBtn = document.getElementById('copy-phonetic-result');
-        
-        // Comments Elements
-        const commentToolbar = document.getElementById('comment-toolbar');
-        const emojiBtn = document.getElementById('emoji-btn');
-        const emojiPicker = document.getElementById('emoji-picker');
-        const emojiGrid = document.getElementById('emoji-grid');
-        const commentTextarea = document.querySelector('#comments-form textarea[name="comment"]');
-        const cityInput = document.querySelector('input[name="city"]');
-        const autocompleteContainer = document.querySelector('.autocomplete-suggestions');
-
-        // Quiz Elements
-        const quizStartButtons = document.querySelectorAll('.quiz-mode-selector button');
-        const qCodeQuizContainer = document.getElementById('q-code-quiz-container');
-        const qCodeQuizArea = document.getElementById('q-code-quiz-area');
-        const qCodeQuestionCounter = document.getElementById('q-code-question-counter');
-        const qCodeQuizTimer = document.getElementById('q-code-quiz-timer');
-        const qCodeQuestionEl = document.getElementById('q-code-question');
-        const qCodeAnswerOptionsEl = document.getElementById('q-code-answer-options');
-        const nextQCodeQuestionBtn = document.getElementById('next-q-code-question');
-
-        const phoneticQuizContainer = document.getElementById('phonetic-quiz-container');
-        const phoneticQuizArea = document.getElementById('phonetic-quiz-area');
-        const phoneticQuestionCounter = document.getElementById('phonetic-question-counter');
-        const phoneticQuizTimer = document.getElementById('phonetic-quiz-timer');
-        const phoneticQuestionEl = document.getElementById('phonetic-question');
-        const phoneticAnswerOptionsEl = document.getElementById('phonetic-answer-options');
-        const nextPhoneticQuestionBtn = document.getElementById('next-phonetic-question');
-
-        // Modal Elements
-        const resultsModal = document.getElementById('results-modal');
-        const closeModalBtn = document.getElementById('close-modal-button');
-        const resultsTitle = document.getElementById('results-title');
-        const resultsSummary = document.getElementById('results-summary');
-        const resultsDetails = document.getElementById('results-details');
-        
-        // Footer Buttons
-        const printBtn = document.getElementById('print-btn');
-        const pdfBtn = document.getElementById('pdf-btn');
-
-        // Quiz State
-        let isQuizActive = false;
-        let currentQuizType = null;
-        let currentQuizMode = null; // 'timed' or 'train'
-        let quizQuestions = [];
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let timerInterval;
-        let userAnswers = [];
-
-        // --- CORE FUNCTIONS ---
-
-        const applyTheme = (theme) => {
-            if (theme === 'dark') body.classList.add('dark-theme');
-            else body.classList.remove('dark-theme');
-            localStorage.setItem('theme', theme);
-        };
-        
-        const speakText = (text) => {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'pt-BR';
-            utterance.rate = 0.9;
-            window.speechSynthesis.speak(utterance);
-        };
-
-        const populateLists = () => {
-            const sortedQCodes = Object.entries(qCodes).sort((a, b) => a[0].localeCompare(b[0]));
             
-            qCodeSelector.innerHTML = '<option value="">-- Selecione um Código --</option>';
-            sortedQCodes.forEach(([code]) => qCodeSelector.appendChild(new Option(code, code)));
-            
-            qCodeFullList.innerHTML = sortedQCodes.map(([code, meaning]) => `<li><strong>${code}</strong> - ${meaning}</li>`).join('');
+            // Your web app's Firebase configuration
+            const firebaseConfig = {
+              apiKey: "AIzaSyD0tK6ln3xZAF1SFmH5W4ZzgZ99Uk8ZV5o",
+              authDomain: "projeto-hunter0007.firebaseapp.com",
+              projectId: "projeto-hunter0007",
+              storageBucket: "projeto-hunter0007.appspot.com",
+              messagingSenderId: "516261510729",
+              appId: "1:516261510729:web:d4097289c1ec4ac5854998",
+              measurementId: "G-TMBMNLR8MT"
+            };
 
-            const sortedPhonetic = Object.entries(phoneticAlphabet);
-            phoneticFullList.innerHTML = ''; 
+            // --- DATA ---
+            const qCodes = {
+                'QRA': 'Nome do operador','QAP': 'Na escuta','QRV': 'Estou a disposição','QSA': 'Intensidade do sinal','QSL': 'Entendido','QSO': 'Contato pessoal','QTA': 'Cancelar a última mensagem','QTC': 'Mensagem','QTH': 'Local, endereço','QTI': 'Estou a caminho / Rumo verdadeiro','QSM': 'Repita a mensagem','QTR': 'Hora certa','QRM': 'Interferência','QRU': 'Novidade, problema','QRX': 'Aguarde','QSP': 'Ponte, auxílio','QSJ': 'Dinheiro, taxa','QTO': 'Banheiro','QTU': 'Horário de funcionamento','QTJ': 'Velocidade do veículo','QRF': 'Refeição','VTR': 'Viatura, veículo','TKS': 'Obrigado'
+            };
+
+            const phoneticAlphabet = {
+                'A': 'Alfa', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo', 'F': 'Fox-Trot', 'G': 'Golf', 'H': 'Hotel', 'I': 'Índia', 'J': 'Juliett', 'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar', 'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango', 'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'Xadrez', 'Y': 'Yankee', 'Z': 'Zulu', '0': 'Negativo / Zero', '1': 'Primeiro / Uno', '2': 'Segundo', '3': 'Terceiro', '4': 'Quarto', '5': 'Quinto', '6': 'Sexto / Meia-dúzia', '7': 'Sétimo', '8': 'Oitavo', '9': 'Nono'
+            };
             
-            const createClickableList = (entries) => {
-                const ul = document.createElement('ul');
-                ul.className = 'code-list';
-                entries.forEach(([letter, word]) => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<strong>${letter}</strong> - ${word}<i class="fa-solid fa-volume-high speaker-icon"></i>`;
-                    li.setAttribute('role', 'button');
-                    li.setAttribute('tabindex', '0');
-                    const wordToSpeak = word.split(' / ')[0]; 
-                    li.addEventListener('click', () => speakText(wordToSpeak));
-                    li.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                           e.preventDefault();
-                           speakText(wordToSpeak);
+            let brazilianCities = [];
+            let formLoadTimestamp;
+
+            // --- ELEMENTS ---
+            const body = document.body;
+            const themeSwitcher = document.getElementById('theme-switcher');
+            const backToTopBtn = document.getElementById('back-to-top');
+            const dailyCodeText = document.getElementById('daily-code-text');
+            const qCodeSelector = document.getElementById('q-code-selector');
+            const qCodeResult = document.getElementById('q-code-result');
+            const phoneticInput = document.getElementById('phonetic-input');
+            const phoneticButton = document.getElementById('phonetic-button');
+            const generateAcronymBtn = document.getElementById('generate-acronym-btn');
+            const phoneticResult = document.getElementById('phonetic-result');
+            const qCodeSearchInput = document.getElementById('q-code-search');
+            const qCodeFullList = document.getElementById('q-code-full-list');
+            const phoneticFullList = document.getElementById('phonetic-full-list');
+            const copyQResultBtn = document.getElementById('copy-q-result');
+            const copyPhoneticResultBtn = document.getElementById('copy-phonetic-result');
+            
+            // Comments Elements
+            const commentsForm = document.getElementById('comments-form');
+            const commentToolbar = document.getElementById('comment-toolbar');
+            const emojiBtn = document.getElementById('emoji-btn');
+            const emojiPicker = document.getElementById('emoji-picker');
+            const emojiGrid = document.getElementById('emoji-grid');
+            const commentTextarea = document.querySelector('#comments-form textarea[name="comment"]');
+            const cityInput = document.querySelector('input[name="city"]');
+            const autocompleteContainer = document.querySelector('.autocomplete-suggestions');
+            const commentsList = document.getElementById('comments-list');
+
+            // Quiz Elements
+            const quizStartButtons = document.querySelectorAll('.quiz-mode-selector button');
+            const qCodeQuizContainer = document.getElementById('q-code-quiz-container');
+            const qCodeQuizArea = document.getElementById('q-code-quiz-area');
+            const qCodeQuestionCounter = document.getElementById('q-code-question-counter');
+            const qCodeQuizTimer = document.getElementById('q-code-quiz-timer');
+            const qCodeQuestionEl = document.getElementById('q-code-question');
+            const qCodeAnswerOptionsEl = document.getElementById('q-code-answer-options');
+            const nextQCodeQuestionBtn = document.getElementById('next-q-code-question');
+            const phoneticQuizContainer = document.getElementById('phonetic-quiz-container');
+            const phoneticQuizArea = document.getElementById('phonetic-quiz-area');
+            const phoneticQuestionCounter = document.getElementById('phonetic-question-counter');
+            const phoneticQuizTimer = document.getElementById('phonetic-quiz-timer');
+            const phoneticQuestionEl = document.getElementById('phonetic-question');
+            const phoneticAnswerOptionsEl = document.getElementById('phonetic-answer-options');
+            const nextPhoneticQuestionBtn = document.getElementById('next-phonetic-question');
+
+            // Modal Elements
+            const resultsModal = document.getElementById('results-modal');
+            const closeModalBtn = document.getElementById('close-modal-button');
+            const resultsTitle = document.getElementById('results-title');
+            const resultsSummary = document.getElementById('results-summary');
+            const resultsDetails = document.getElementById('results-details');
+            
+            // Footer Buttons
+            const printBtn = document.getElementById('print-btn');
+            const pdfBtn = document.getElementById('pdf-btn');
+
+            // Quiz State
+            let isQuizActive = false;
+            let currentQuizType = null;
+            let currentQuizMode = null;
+            let quizQuestions = [];
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let timerInterval;
+            let userAnswers = [];
+            
+            // --- FIREBASE & COMMENTS ---
+            const initializeComments = () => {
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    const db = getFirestore(app);
+                    formLoadTimestamp = Date.now(); // For anti-spam time check
+
+                    commentsForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+
+                        // Anti-spam checks
+                        if (commentsForm.querySelector('input[name="website"]').value !== '') {
+                             console.log("Honeypot filled. Likely spam."); return; 
+                        }
+                        if (Date.now() - formLoadTimestamp < 3000) {
+                             console.log("Form submitted too quickly. Likely spam."); return; 
+                        }
+                        const lastCommentTime = localStorage.getItem('lastCommentTime');
+                        if (lastCommentTime && Date.now() - lastCommentTime < 60000) {
+                            alert('Você está comentando muito rápido. Por favor, aguarde um momento.'); return;
+                        }
+
+                        const submitButton = commentsForm.querySelector('button[type="submit"]');
+                        submitButton.disabled = true;
+                        submitButton.textContent = 'Publicando...';
+                        
+                        const nameInput = commentsForm.querySelector('input[name="name"]');
+                        const cityInput = commentsForm.querySelector('input[name="city"]');
+                        const commentInput = commentTextarea;
+
+                        addDoc(collection(db, "comments"), {
+                            name: nameInput.value.trim() || 'Anônimo', city: cityInput.value.trim(), text: commentInput.value.trim(), timestamp: serverTimestamp()
+                        }).then(() => {
+                            commentsForm.reset();
+                            localStorage.setItem('lastCommentTime', Date.now());
+                        }).catch(err => {
+                            console.error("Erro ao adicionar comentário: ", err);
+                            alert("Ocorreu um erro ao enviar seu comentário.");
+                        }).finally(() => {
+                            submitButton.disabled = false;
+                            submitButton.textContent = 'Publicar Comentário';
+                        });
+                    });
+                    
+                    const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
+                    onSnapshot(q, (snapshot) => {
+                        commentsList.innerHTML = '';
+                        if (snapshot.empty) {
+                            commentsList.innerHTML = '<p style="text-align: center; opacity: 0.7;">Nenhum comentário ainda. Seja o primeiro!</p>';
+                        } else {
+                            snapshot.forEach((doc) => {
+                                const comment = doc.data();
+                                const li = document.createElement('li');
+                                li.className = 'comment-item';
+                                const date = comment.timestamp ? comment.timestamp.toDate().toLocaleString('pt-BR') : 'Enviando...';
+                                const authorCity = comment.city ? ` - ${comment.city}` : '';
+                                const parsedText = comment.text.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\[b\](.*?)\[\/b\]/g, '<strong>$1</strong>').replace(/\[i\](.*?)\[\/i\]/g, '<em>$1</em>').replace(/\[s\](.*?)\[\/s\]/g, '<s>$1</s>');
+                                li.innerHTML = `<div class="comment-header"><strong>${comment.name}${authorCity}</strong><small>${date}</small></div><p>${parsedText}</p>`;
+                                commentsList.appendChild(li);
+                            });
                         }
                     });
-                    ul.appendChild(li);
-                });
-                return ul;
+
+                } catch (e) {
+                    console.error("Erro ao inicializar o Firebase. Verifique sua configuração.", e);
+                    document.getElementById('comments-section').innerHTML = '<p style="text-align:center; color: #e74c3c;">Não foi possível carregar os comentários. A configuração do Firebase parece estar ausente ou incorreta.</p>';
+                }
+            };
+            
+            // --- CORE FUNCTIONS ---
+
+            const applyTheme = (theme) => {
+                if (theme === 'dark') body.classList.add('dark-theme');
+                else body.classList.remove('dark-theme');
+                localStorage.setItem('theme', theme);
+            };
+            
+            const speakText = (text) => {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
             };
 
-            const midPoint = Math.ceil(sortedPhonetic.length / 2);
-            phoneticFullList.appendChild(createClickableList(sortedPhonetic.slice(0, midPoint)));
-            phoneticFullList.appendChild(createClickableList(sortedPhonetic.slice(midPoint)));
-        };
+            const populateLists = () => {
+                const sortedQCodes = Object.entries(qCodes).sort((a, b) => a[0].localeCompare(b[0]));
+                qCodeSelector.innerHTML = '<option value="">-- Selecione um Código --</option>';
+                sortedQCodes.forEach(([code]) => qCodeSelector.appendChild(new Option(code, code)));
+                qCodeFullList.innerHTML = sortedQCodes.map(([code, meaning]) => `<li><strong>${code}</strong> - ${meaning}</li>`).join('');
 
-        const displayCodeOfTheDay = () => {
-            const allQCodes = Object.keys(qCodes);
-            const randomCode = allQCodes[Math.floor(Math.random() * allQCodes.length)];
-            const meaning = qCodes[randomCode];
-            dailyCodeText.innerHTML = `<strong>${randomCode}:</strong> ${meaning}`;
-        };
-
-        const convertToPhonetic = () => {
-            const text = phoneticInput.value.toUpperCase().trim();
-            phoneticResult.classList.toggle('has-content', text !== '');
-            phoneticResult.textContent = text === '' ? 'A conversão aparecerá aqui...' : [...text].map(char => phoneticAlphabet[char] || char).join(' ');
-        };
-        
-        const generateRandomAcronym = () => {
-             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-             const length = Math.floor(Math.random() * 3) + 3;
-             let result = '';
-             for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-             phoneticInput.value = result;
-             convertToPhonetic();
-        };
-
-        const copyToClipboard = (contentEl, buttonEl) => {
-            const text = contentEl.textContent;
-            if (!text || text.includes('aparecerá aqui...')) return;
-            navigator.clipboard.writeText(text).then(() => {
-                const originalIcon = buttonEl.innerHTML;
-                buttonEl.innerHTML = '<i class="fa-solid fa-check"></i>';
-                buttonEl.style.color = 'var(--correct-answer-border)';
-                setTimeout(() => {
-                    buttonEl.innerHTML = originalIcon;
-                    buttonEl.style.color = '';
-                }, 2000);
-            });
-        };
-        
-        // --- PRINT & PDF ---
-        const setupExportButtons = () => {
-             printBtn.addEventListener('click', () => window.print());
-             pdfBtn.addEventListener('click', () => {
-                 const { jsPDF } = window.jspdf;
-                 const content = document.querySelector('main');
-                 pdfBtn.textContent = 'Gerando...';
-                 html2canvas(content, { scale: 2, backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-color-static') })
-                 .then(canvas => {
-                     const imgData = canvas.toDataURL('image/png');
-                     const pdf = new jsPDF('p', 'mm', 'a4');
-                     const pdfWidth = pdf.internal.pageSize.getWidth();
-                     const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                     pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                     pdf.save('manual-de-comunicacao.pdf');
-                     pdfBtn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Salvar como PDF';
-                 });
-             });
-        };
-
-        // --- COMMENTS EDITOR & AUTOCOMPLETE ---
-        const fetchCities = async () => {
-            try {
-                const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
-                const data = await response.json();
-                brazilianCities = data.map(city => `${city.nome} - ${city.microrregiao.mesorregiao.UF.sigla}`);
-            } catch (error) {
-                console.error("Erro ao carregar cidades:", error);
-            }
-        };
-
-        const setupCommentsEditor = () => {
-            const emojis = ['😀', '😂', '😍', '🤔', '👍', '👎', '🙏', '🔥', '❤️', '🎉', '🚀', '💡', '✅', '❌'];
-            emojiGrid.innerHTML = emojis.map(e => `<span>${e}</span>`).join('');
-            
-            commentToolbar.addEventListener('click', (e) => {
-                const button = e.target.closest('button');
-                if (!button) return;
-
-                if (button.id === 'emoji-btn') {
-                    emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
-                } else if (button.dataset.format) {
-                    formatComment(button.dataset.format);
-                }
-            });
-
-            emojiGrid.addEventListener('click', (e) => {
-                if (e.target.tagName === 'SPAN') {
-                    insertAtCursor(commentTextarea, e.target.textContent);
-                    emojiPicker.style.display = 'none';
-                }
-            });
-            
-            cityInput.addEventListener('input', (e) => {
-                const value = e.target.value.toLowerCase();
-                autocompleteContainer.innerHTML = '';
-                if (!value) return;
-
-                const suggestions = brazilianCities
-                    .filter(city => city.toLowerCase().includes(value))
-                    .slice(0, 5);
+                const sortedPhonetic = Object.entries(phoneticAlphabet);
+                phoneticFullList.innerHTML = ''; 
                 
-                suggestions.forEach(suggestion => {
-                    const div = document.createElement('div');
-                    div.textContent = suggestion;
-                    div.addEventListener('click', () => {
-                        cityInput.value = suggestion;
-                        autocompleteContainer.innerHTML = '';
+                const createClickableList = (entries) => {
+                    const ul = document.createElement('ul');
+                    ul.className = 'code-list';
+                    entries.forEach(([letter, word]) => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${letter}</strong> - ${word}<i class="fa-solid fa-volume-high speaker-icon"></i>`;
+                        li.setAttribute('role', 'button');
+                        li.setAttribute('tabindex', '0');
+                        const wordToSpeak = word.split(' / ')[0]; 
+                        li.addEventListener('click', () => speakText(wordToSpeak));
+                        li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speakText(wordToSpeak); } });
+                        ul.appendChild(li);
                     });
-                    autocompleteContainer.appendChild(div);
-                });
-            });
+                    return ul;
+                };
 
-            document.addEventListener('click', (e) => {
-                if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
-                    emojiPicker.style.display = 'none';
-                }
-                if (!cityInput.contains(e.target)) {
-                    autocompleteContainer.innerHTML = '';
-                }
-            });
-        };
-        
-        const insertAtCursor = (myField, myValue) => {
-            if (myField.selectionStart || myField.selectionStart == '0') {
-                var startPos = myField.selectionStart;
-                var endPos = myField.selectionEnd;
-                myField.value = myField.value.substring(0, startPos) + myValue + myField.value.substring(endPos, myField.value.length);
-                myField.selectionStart = startPos + myValue.length;
-                myField.selectionEnd = startPos + myValue.length;
-            } else {
-                myField.value += myValue;
-            }
-            myField.focus();
-        };
-
-        const formatComment = (format) => {
-            const startTag = `[${format[0]}]`;
-            const endTag = `[/${format[0]}]`;
-            const startPos = commentTextarea.selectionStart;
-            const endPos = commentTextarea.selectionEnd;
-            const selectedText = commentTextarea.value.substring(startPos, endPos);
-            
-            commentTextarea.value = commentTextarea.value.substring(0, startPos) + startTag + selectedText + endTag + commentTextarea.value.substring(endPos, commentTextarea.value.length);
-            
-            commentTextarea.focus();
-            commentTextarea.selectionStart = startPos + startTag.length;
-            commentTextarea.selectionEnd = endPos + startTag.length;
-        };
-
-        // --- QUIZ FUNCTIONS ---
-
-        const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
-
-        const generateQuestions = (type) => {
-            const sourceData = type === 'q-code' ? qCodes : phoneticAlphabet;
-            const keys = Object.keys(sourceData);
-            if (keys.length < 10) return [];
-            const selectedKeys = shuffleArray([...keys]).slice(0, 10);
-            return selectedKeys.map(correctKey => {
-                const correctAnswer = sourceData[correctKey];
-                let distractors = Object.values(sourceData).filter(v => v !== correctAnswer);
-                distractors = shuffleArray(distractors).slice(0, 3);
-                const options = shuffleArray([correctAnswer, ...distractors]);
-                const questionText = type === 'q-code' ? `Qual o significado de <strong>${correctKey}</strong>?` : `Qual a palavra para <strong>"${correctKey}"</strong>?`;
-                return { question: questionText, options, answer: correctAnswer };
-            });
-        };
-
-        const startTimer = (duration, displayEl) => {
-            let timer = duration;
-            displayEl.style.display = 'block';
-            const update = () => {
-                displayEl.textContent = `${String(Math.floor(timer / 60)).padStart(2, '0')}:${String(timer % 60).padStart(2, '0')}`;
-                if (--timer < 0) endQuiz();
+                const midPoint = Math.ceil(sortedPhonetic.length / 2);
+                phoneticFullList.appendChild(createClickableList(sortedPhonetic.slice(0, midPoint)));
+                phoneticFullList.appendChild(createClickableList(sortedPhonetic.slice(midPoint)));
             };
-            update();
-            timerInterval = setInterval(update, 1000);
-        };
 
-        const handleTrainModeAnswer = (optionsContainer, correctAnswer) => {
-            optionsContainer.addEventListener('change', e => {
-                if (e.target.name === 'answer') {
-                    userAnswers.push(e.target.value);
-                    optionsContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
-                        const label = radio.nextElementSibling;
-                        radio.disabled = true;
-                        if (radio.value === correctAnswer) label.classList.add('correct-feedback');
-                        else if (radio.checked) label.classList.add('incorrect-feedback');
-                    });
-                    optionsContainer.closest('.quiz-area').querySelector('.action-button').style.display = 'block';
-                }
-            }, { once: true });
-        };
-        
-        const displayQuestion = () => {
-            const q = quizQuestions[currentQuestionIndex];
-            const els = currentQuizType === 'q-code' ? 
-                { q: qCodeQuestionEl, a: qCodeAnswerOptionsEl, c: qCodeQuestionCounter, n: nextQCodeQuestionBtn } : 
-                { q: phoneticQuestionEl, a: phoneticAnswerOptionsEl, c: phoneticQuestionCounter, n: nextPhoneticQuestionBtn };
+            const displayCodeOfTheDay = () => {
+                const allQCodes = Object.keys(qCodes);
+                const randomCode = allQCodes[Math.floor(Math.random() * allQCodes.length)];
+                dailyCodeText.innerHTML = `<strong>${randomCode}:</strong> ${qCodes[randomCode]}`;
+            };
+
+            const convertToPhonetic = () => {
+                const text = phoneticInput.value.toUpperCase().trim();
+                phoneticResult.classList.toggle('has-content', !!text);
+                phoneticResult.textContent = text ? [...text].map(char => phoneticAlphabet[char] || char).join(' ') : 'A conversão aparecerá aqui...';
+            };
             
-            els.c.textContent = `Pergunta ${currentQuestionIndex + 1} de 10`;
-            els.q.innerHTML = q.question;
-            els.a.innerHTML = q.options.map((opt, i) => `<li><input type="radio" id="${currentQuizType}-${currentQuizMode}-${currentQuestionIndex}-${i}" name="answer" value="${opt}"><label for="${currentQuizType}-${currentQuizMode}-${currentQuestionIndex}-${i}">${opt}</label></li>`).join('');
-            els.n.style.display = currentQuizMode === 'train' ? 'none' : 'block';
-            els.n.textContent = currentQuestionIndex === 9 ? 'Finalizar Prova' : 'Próxima Pergunta';
-            if (currentQuizMode === 'train') handleTrainModeAnswer(els.a, q.answer);
-        };
+            const generateRandomAcronym = () => {
+                 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                 const length = Math.floor(Math.random() * 3) + 3;
+                 let result = '';
+                 for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+                 phoneticInput.value = result;
+                 convertToPhonetic();
+            };
 
-        const nextQuestion = () => {
-            if (currentQuizMode !== 'train') {
-                const sel = document.querySelector(`div#${currentQuizType}-quiz-area input[name="answer"]:checked`);
-                userAnswers.push(sel ? sel.value : null);
-            }
-            if (userAnswers[currentQuestionIndex] === quizQuestions[currentQuestionIndex].answer) score++;
-            if (++currentQuestionIndex < 10) displayQuestion();
-            else endQuiz();
-        };
+            const copyToClipboard = (contentEl, buttonEl) => {
+                const text = contentEl.textContent;
+                if (!text || text.includes('aparecerá aqui...')) return;
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalIcon = buttonEl.innerHTML;
+                    buttonEl.innerHTML = '<i class="fa-solid fa-check"></i>';
+                    buttonEl.style.color = 'var(--correct-answer-border)';
+                    setTimeout(() => { buttonEl.innerHTML = originalIcon; buttonEl.style.color = ''; }, 2000);
+                });
+            };
+            
+            const setupExportButtons = () => {
+                 printBtn.addEventListener('click', () => window.print());
+                 pdfBtn.addEventListener('click', () => {
+                     const { jsPDF } = window.jspdf;
+                     const content = document.querySelector('main');
+                     pdfBtn.textContent = 'Gerando...';
+                     html2canvas(content, { scale: 2, backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg-color-static') })
+                     .then(canvas => {
+                         const imgData = canvas.toDataURL('image/png');
+                         const pdf = new jsPDF('p', 'mm', 'a4');
+                         const pdfWidth = pdf.internal.pageSize.getWidth();
+                         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                         pdf.save('manual-de-comunicacao.pdf');
+                         pdfBtn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Salvar como PDF';
+                     });
+                 });
+            };
 
-        const endQuiz = () => {
-            clearInterval(timerInterval);
-            isQuizActive = false;
-            quizStartButtons.forEach(btn => btn.disabled = false);
+            const fetchCities = async () => {
+                try {
+                    const response = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/municipios');
+                    const data = await response.json();
+                    brazilianCities = data.map(city => `${city.nome} - ${city.microrregiao.mesorregiao.UF.sigla}`);
+                } catch (error) { console.error("Erro ao carregar cidades:", error); }
+            };
 
-            const els = currentQuizType === 'q-code' ? { area: qCodeQuizArea, container: qCodeQuizContainer } : { area: phoneticQuizArea, container: phoneticQuizContainer };
-            els.area.style.display = 'none';
-            els.container.querySelector('.quiz-mode-selector').style.display = 'flex';
-            resultsTitle.textContent = `Resultado: ${currentQuizMode === 'train' ? 'Treino' : 'Prova'} de ${currentQuizType === 'q-code' ? 'Código Q' : 'Alfabeto Fonético'}`;
-            resultsSummary.innerHTML = `Você acertou <strong>${score} de 10</strong> perguntas!`;
-            resultsDetails.innerHTML = quizQuestions.map((q, i) => `<div class="result-item ${userAnswers[i] === q.answer ? 'correct' : 'incorrect'}"><p>${i + 1}. ${q.question}</p><p><strong>Sua resposta:</strong> ${userAnswers[i] || 'Nenhuma'}</p>${userAnswers[i] !== q.answer ? `<p><strong>Resposta correta:</strong> ${q.answer}</p>` : ''}</div>`).join('');
-            resultsModal.style.display = 'block';
-        };
+            const setupCommentsEditor = () => {
+                const emojis = ['😀', '😂', '😍', '🤔', '👍', '👎', '🙏', '🔥', '❤️', '�', '🚀', '💡', '✅', '❌'];
+                emojiGrid.innerHTML = emojis.map(e => `<span>${e}</span>`).join('');
+                
+                commentToolbar.addEventListener('click', (e) => {
+                    const button = e.target.closest('button');
+                    if (!button) return;
+                    if (button.id === 'emoji-btn') emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+                    else if (button.dataset.format) formatComment(button.dataset.format);
+                });
+                emojiGrid.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'SPAN') {
+                        insertAtCursor(commentTextarea, e.target.textContent);
+                        emojiPicker.style.display = 'none';
+                    }
+                });
+                cityInput.addEventListener('input', (e) => {
+                    const value = e.target.value.toLowerCase();
+                    autocompleteContainer.innerHTML = '';
+                    if (!value) return;
+                    const suggestions = brazilianCities.filter(city => city.toLowerCase().includes(value)).slice(0, 5);
+                    suggestions.forEach(suggestion => {
+                        const div = document.createElement('div');
+                        div.textContent = suggestion;
+                        div.addEventListener('click', () => { cityInput.value = suggestion; autocompleteContainer.innerHTML = ''; });
+                        autocompleteContainer.appendChild(div);
+                    });
+                });
+                document.addEventListener('click', (e) => {
+                    if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) emojiPicker.style.display = 'none';
+                    if (!cityInput.contains(e.target)) autocompleteContainer.innerHTML = '';
+                });
+            };
+            
+            const insertAtCursor = (field, value) => {
+                const [start, end] = [field.selectionStart, field.selectionEnd];
+                field.value = field.value.substring(0, start) + value + field.value.substring(end);
+                field.selectionStart = field.selectionEnd = start + value.length;
+                field.focus();
+            };
+            const formatComment = (format) => {
+                const tags = { bold: '[b]', italic: '[i]', strike: '[s]' };
+                const startTag = tags[format];
+                const endTag = `[/${format[0]}]`;
+                const [start, end] = [commentTextarea.selectionStart, commentTextarea.selectionEnd];
+                const selected = commentTextarea.value.substring(start, end);
+                const replacement = startTag + selected + endTag;
+                commentTextarea.setRangeText(replacement, start, end);
+                commentTextarea.focus();
+                commentTextarea.selectionStart = start + startTag.length;
+                commentTextarea.selectionEnd = start + startTag.length + selected.length;
+            };
 
-        const startQuiz = (type, mode) => {
-            if(isQuizActive) return;
-            isQuizActive = true;
-            quizStartButtons.forEach(btn => btn.disabled = true);
+            // --- QUIZ FUNCTIONS ---
+            const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
+            const generateQuestions = (type) => {
+                const sourceData = type === 'q-code' ? qCodes : phoneticAlphabet;
+                const keys = Object.keys(sourceData);
+                if (keys.length < 10) return [];
+                const selectedKeys = shuffleArray([...keys]).slice(0, 10);
+                return selectedKeys.map(correctKey => {
+                    const correctAnswer = sourceData[correctKey];
+                    const distractors = shuffleArray(Object.values(sourceData).filter(v => v !== correctAnswer)).slice(0, 3);
+                    const options = shuffleArray([correctAnswer, ...distractors]);
+                    const questionText = type === 'q-code' ? `Qual o significado de <strong>${correctKey}</strong>?` : `Qual a palavra para <strong>"${correctKey}"</strong>?`;
+                    return { question: questionText, options, answer: correctAnswer };
+                });
+            };
+            const startTimer = (duration, displayEl) => {
+                let timer = duration;
+                displayEl.style.display = 'block';
+                const update = () => {
+                    displayEl.textContent = `${String(Math.floor(timer / 60)).padStart(2, '0')}:${String(timer % 60).padStart(2, '0')}`;
+                    if (--timer < 0) endQuiz();
+                };
+                update();
+                timerInterval = setInterval(update, 1000);
+            };
+            const handleTrainModeAnswer = (optionsContainer, correctAnswer) => {
+                optionsContainer.addEventListener('change', e => {
+                    if (e.target.name === 'answer') {
+                        userAnswers.push(e.target.value);
+                        optionsContainer.querySelectorAll('input[type="radio"]').forEach(radio => {
+                            const label = radio.nextElementSibling;
+                            radio.disabled = true;
+                            if (radio.value === correctAnswer) label.classList.add('correct-feedback');
+                            else if (radio.checked) label.classList.add('incorrect-feedback');
+                        });
+                        optionsContainer.closest('.quiz-area').querySelector('.action-button').style.display = 'block';
+                    }
+                }, { once: true });
+            };
+            const displayQuestion = () => {
+                const q = quizQuestions[currentQuestionIndex];
+                const els = currentQuizType === 'q-code' ? { q: qCodeQuestionEl, a: qCodeAnswerOptionsEl, c: qCodeQuestionCounter, n: nextQCodeQuestionBtn } : { q: phoneticQuestionEl, a: phoneticAnswerOptionsEl, c: phoneticQuestionCounter, n: nextPhoneticQuestionBtn };
+                els.c.textContent = `Pergunta ${currentQuestionIndex + 1} de 10`;
+                els.q.innerHTML = q.question;
+                els.a.innerHTML = q.options.map((opt, i) => `<li><input type="radio" id="${currentQuizType}-${currentQuizMode}-${currentQuestionIndex}-${i}" name="answer" value="${opt}"><label for="${currentQuizType}-${currentQuizMode}-${currentQuestionIndex}-${i}">${opt}</label></li>`).join('');
+                els.n.style.display = currentQuizMode === 'train' ? 'none' : 'block';
+                els.n.textContent = currentQuestionIndex === 9 ? 'Finalizar Prova' : 'Próxima Pergunta';
+                if (currentQuizMode === 'train') handleTrainModeAnswer(els.a, q.answer);
+            };
+            const nextQuestion = () => {
+                if (currentQuizMode !== 'train') {
+                    const sel = document.querySelector(`div#${currentQuizType}-quiz-area input[name="answer"]:checked`);
+                    userAnswers.push(sel ? sel.value : null);
+                }
+                if (userAnswers[currentQuestionIndex] === quizQuestions[currentQuestionIndex].answer) score++;
+                if (++currentQuestionIndex < 10) displayQuestion();
+                else endQuiz();
+            };
+            const endQuiz = () => {
+                clearInterval(timerInterval);
+                const els = currentQuizType === 'q-code' ? { area: qCodeQuizArea, container: qCodeQuizContainer } : { area: phoneticQuizArea, container: phoneticQuizContainer };
+                els.area.style.display = 'none';
+                els.container.querySelector('.quiz-mode-selector').style.display = 'flex';
+                resultsTitle.textContent = `Resultado: ${currentQuizMode === 'train' ? 'Treino' : 'Prova'} de ${currentQuizType === 'q-code' ? 'Código Q' : 'Alfabeto Fonético'}`;
+                resultsSummary.innerHTML = `Você acertou <strong>${score} de 10</strong> perguntas!`;
+                resultsDetails.innerHTML = quizQuestions.map((q, i) => `<div class="result-item ${userAnswers[i] === q.answer ? 'correct' : 'incorrect'}"><p>${i + 1}. ${q.question}</p><p><strong>Sua resposta:</strong> ${userAnswers[i] || 'Nenhuma'}</p>${userAnswers[i] !== q.answer ? `<p><strong>Resposta correta:</strong> ${q.answer}</p>` : ''}</div>`).join('');
+                resultsModal.style.display = 'block';
+            };
+            const startQuiz = (type, mode) => {
+                if (isQuizActive) return;
+                isQuizActive = true;
+                quizStartButtons.forEach(btn => btn.disabled = true);
+                currentQuizType = type;
+                currentQuizMode = mode;
+                quizQuestions = generateQuestions(type);
+                if (quizQuestions.length === 0) { isQuizActive = false; quizStartButtons.forEach(btn => btn.disabled = false); return; }
+                [currentQuestionIndex, score, userAnswers] = [0, 0, []];
+                const els = type === 'q-code' ? { container: qCodeQuizContainer, area: qCodeQuizArea, timer: qCodeQuizTimer } : { container: phoneticQuizContainer, area: phoneticQuizArea, timer: phoneticQuizTimer };
+                els.container.querySelector('.quiz-mode-selector').style.display = 'none';
+                els.area.style.display = 'block';
+                if (mode === 'timed') startTimer(299, els.timer);
+                else els.timer.style.display = 'none';
+                displayQuestion();
+            };
+            const resetQuizState = () => {
+                if (isQuizActive) { isQuizActive = false; quizStartButtons.forEach(btn => btn.disabled = false); }
+            };
 
-            currentQuizType = type;
-            currentQuizMode = mode;
-            quizQuestions = generateQuestions(type);
-            if (quizQuestions.length === 0) {
-                isQuizActive = false;
-                quizStartButtons.forEach(btn => btn.disabled = false);
-                return;
-            }
-            [currentQuestionIndex, score, userAnswers] = [0, 0, []];
-            const els = type === 'q-code' ? { container: qCodeQuizContainer, area: qCodeQuizArea, timer: qCodeQuizTimer } : { container: phoneticQuizContainer, area: phoneticQuizArea, timer: phoneticQuizTimer };
-            els.container.querySelector('.quiz-mode-selector').style.display = 'none';
-            els.area.style.display = 'block';
-            if (mode === 'timed') startTimer(299, els.timer);
-            else els.timer.style.display = 'none';
-            displayQuestion();
-        };
-        
-        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        applyTheme(savedTheme);
-        populateLists();
-        displayCodeOfTheDay();
-        setupExportButtons();
-        setupCommentsEditor();
-        fetchCities();
+            // --- INITIALIZATION ---
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+            populateLists();
+            displayCodeOfTheDay();
+            setupExportButtons();
+            setupCommentsEditor();
+            fetchCities();
+            initializeComments();
 
-        themeSwitcher.addEventListener('click', () => applyTheme(body.classList.contains('dark-theme') ? 'light' : 'dark'));
-        window.addEventListener('scroll', () => backToTopBtn.classList.toggle('visible', window.scrollY > 300));
-        backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        qCodeSelector.addEventListener('change', e => {
-            const meaning = qCodes[e.target.value];
-            qCodeResult.classList.toggle('has-content', !!meaning);
-            qCodeResult.textContent = meaning || 'O significado aparecerá aqui...';
+            // --- EVENT LISTENERS ---
+            themeSwitcher.addEventListener('click', () => applyTheme(body.classList.contains('dark-theme') ? 'light' : 'dark'));
+            window.addEventListener('scroll', () => backToTopBtn.classList.toggle('visible', window.scrollY > 300));
+            backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            qCodeSelector.addEventListener('change', e => { const meaning = qCodes[e.target.value]; qCodeResult.classList.toggle('has-content', !!meaning); qCodeResult.textContent = meaning || 'O significado aparecerá aqui...'; });
+            phoneticButton.addEventListener('click', convertToPhonetic);
+            phoneticInput.addEventListener('keyup', e => e.key === 'Enter' && convertToPhonetic());
+            generateAcronymBtn.addEventListener('click', generateRandomAcronym);
+            qCodeSearchInput.addEventListener('input', e => { const term = e.target.value.toLowerCase(); qCodeFullList.querySelectorAll('li').forEach(li => li.style.display = li.textContent.toLowerCase().includes(term) ? 'block' : 'none'); });
+            copyQResultBtn.addEventListener('click', () => copyToClipboard(qCodeResult, copyQResultBtn));
+            copyPhoneticResultBtn.addEventListener('click', () => copyToClipboard(phoneticResult, copyPhoneticResultBtn));
+            quizStartButtons.forEach(button => button.addEventListener('click', e => startQuiz(e.currentTarget.dataset.quizType, e.currentTarget.dataset.quizMode)));
+            nextQCodeQuestionBtn.addEventListener('click', nextQuestion);
+            nextPhoneticQuestionBtn.addEventListener('click', nextQuestion);
+            closeModalBtn.addEventListener('click', () => { resultsModal.style.display = 'none'; resetQuizState(); });
+            window.addEventListener('click', e => { if (e.target === resultsModal) { resultsModal.style.display = 'none'; resetQuizState(); } });
         });
-        phoneticButton.addEventListener('click', convertToPhonetic);
-        phoneticInput.addEventListener('keyup', e => e.key === 'Enter' && convertToPhonetic());
-        generateAcronymBtn.addEventListener('click', generateRandomAcronym);
-        qCodeSearchInput.addEventListener('input', e => {
-            const term = e.target.value.toLowerCase();
-            qCodeFullList.querySelectorAll('li').forEach(li => li.style.display = li.textContent.toLowerCase().includes(term) ? 'block' : 'none');
-        });
-        copyQResultBtn.addEventListener('click', () => copyToClipboard(qCodeResult, copyQResultBtn));
-        copyPhoneticResultBtn.addEventListener('click', () => copyToClipboard(phoneticResult, copyPhoneticResultBtn));
-        document.querySelectorAll('.quiz-mode-selector button').forEach(button => button.addEventListener('click', e => startQuiz(e.currentTarget.dataset.quizType, e.currentTarget.dataset.quizMode)));
-        nextQCodeQuestionBtn.addEventListener('click', nextQuestion);
-        nextPhoneticQuestionBtn.addEventListener('click', nextQuestion);
-        
-        const resetQuizState = () => {
-            if (isQuizActive) {
-                isQuizActive = false;
-                quizStartButtons.forEach(btn => btn.disabled = false);
-            }
-        };
-
-        closeModalBtn.addEventListener('click', () => {
-            resultsModal.style.display = 'none';
-            resetQuizState();
-        });
-        window.addEventListener('click', e => { 
-            if (e.target === resultsModal) {
-                resultsModal.style.display = 'none';
-                resetQuizState();
-            }
-        });
-    });
     </script>
 </body>
 </html>

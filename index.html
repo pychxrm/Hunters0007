@@ -316,6 +316,15 @@
         .columns { display: flex; flex-wrap: wrap; gap: 20px; }
         .columns ul { flex: 1; min-width: 250px; }
         
+        /* Style for clickable list items for speech */
+        #phonetic-full-list .code-list li {
+            cursor: pointer;
+        }
+        #phonetic-full-list .code-list li:active {
+            transform: scale(0.98);
+            background-color: color-mix(in srgb, var(--primary-color) 20%, transparent);
+        }
+        
         .video-container {
             position: relative;
             padding-bottom: 56.25%; /* 16:9 aspect ratio */
@@ -336,6 +345,12 @@
 
         /* --- QUIZ STYLES --- */
         .quiz-container { text-align: center; }
+        .quiz-container p small {
+            display: block;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
         .quiz-mode-selector { margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; }
         .quiz-mode-selector button { flex: 1; }
         .quiz-area { display: none; margin-top: 20px; }
@@ -581,7 +596,7 @@
                 <!-- Q-Code Quiz -->
                 <div id="q-code-quiz-container" class="quiz-container">
                     <h3><i class="fa-solid fa-tower-broadcast"></i> Prova: Código Q</h3>
-                    <p>Teste seu conhecimento sobre os códigos Q. Escolha um modo para começar.</p>
+                    <p><small><strong>Modo Treino:</strong> Sem tempo, com feedback instantâneo.<br><strong>Modo Prova:</strong> Contra o relógio, com resultado no final.</small></p>
                     <div class="quiz-mode-selector">
                          <button class="secondary-button" data-quiz-type="q-code" data-quiz-mode="train">Modo Treino</button>
                          <button class="action-button" data-quiz-type="q-code" data-quiz-mode="timed">Modo Prova</button>
@@ -599,7 +614,7 @@
                 <!-- Phonetic Quiz -->
                 <div id="phonetic-quiz-container" class="quiz-container">
                     <h3><i class="fa-solid fa-spell-check"></i> Prova: Alfabeto Fonético</h3>
-                    <p>Consegue associar letras e números aos códigos? Escolha um modo para começar.</p>
+                     <p><small><strong>Modo Treino:</strong> Sem tempo, com feedback instantâneo.<br><strong>Modo Prova:</strong> Contra o relógio, com resultado no final.</small></p>
                      <div class="quiz-mode-selector">
                          <button class="secondary-button" data-quiz-type="phonetic" data-quiz-mode="train">Modo Treino</button>
                          <button class="action-button" data-quiz-type="phonetic" data-quiz-mode="timed">Modo Prova</button>
@@ -758,22 +773,64 @@
             else body.classList.remove('dark-theme');
             localStorage.setItem('theme', theme);
         };
+        
+        /**
+         * Uses the Web Speech API to speak a given text.
+         * @param {string} text The text to be spoken.
+         */
+        const speakText = (text) => {
+            // Stop any speech that is currently active
+            window.speechSynthesis.cancel();
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR'; // Set the language to Brazilian Portuguese
+            utterance.rate = 0.9; // Slightly slower for clarity
+            window.speechSynthesis.speak(utterance);
+        };
 
         const populateLists = () => {
             const sortedQCodes = Object.entries(qCodes).sort((a, b) => a[0].localeCompare(b[0]));
-            const sortedPhonetic = Object.entries(phoneticAlphabet);
-
+            
+            // Q-Code Selector
             qCodeSelector.innerHTML = '<option value="">-- Selecione um Código --</option>';
             sortedQCodes.forEach(([code]) => {
                 qCodeSelector.appendChild(new Option(code, code));
             });
             
+            // Full Q-Code List
             qCodeFullList.innerHTML = sortedQCodes.map(([code, meaning]) => `<li><strong>${code}</strong> - ${meaning}</li>`).join('');
 
+            // Full Phonetic List (with speech synthesis)
+            const sortedPhonetic = Object.entries(phoneticAlphabet);
+            phoneticFullList.innerHTML = ''; // Clear existing content
+            
+            const createClickableList = (entries) => {
+                const ul = document.createElement('ul');
+                ul.className = 'code-list';
+                entries.forEach(([letter, word]) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<strong>${letter}</strong> - ${word}`;
+                    li.setAttribute('role', 'button');
+                    li.setAttribute('tabindex', '0');
+
+                    const wordToSpeak = word.split(' / ')[0]; // Speak the first variant
+                    
+                    li.addEventListener('click', () => speakText(wordToSpeak));
+                    li.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                           e.preventDefault();
+                           speakText(wordToSpeak);
+                        }
+                    });
+
+                    ul.appendChild(li);
+                });
+                return ul;
+            };
+
             const midPoint = Math.ceil(sortedPhonetic.length / 2);
-            const col1 = sortedPhonetic.slice(0, midPoint).map(([l, w]) => `<li><strong>${l}</strong> - ${w}</li>`).join('');
-            const col2 = sortedPhonetic.slice(midPoint).map(([l, w]) => `<li><strong>${l}</strong> - ${w}</li>`).join('');
-            phoneticFullList.innerHTML = `<ul class="code-list">${col1}</ul><ul class="code-list">${col2}</ul>`;
+            phoneticFullList.appendChild(createClickableList(sortedPhonetic.slice(0, midPoint)));
+            phoneticFullList.appendChild(createClickableList(sortedPhonetic.slice(midPoint)));
         };
 
         const displayCodeOfTheDay = () => {
@@ -886,6 +943,7 @@
             optionsContainer.addEventListener('change', (e) => {
                 if (e.target.name === 'answer') {
                     const radios = optionsContainer.querySelectorAll('input[type="radio"]');
+                    userAnswers.push(e.target.value);
                     radios.forEach(radio => {
                         const label = radio.nextElementSibling;
                         radio.disabled = true;
@@ -933,12 +991,8 @@
             if (currentQuizMode !== 'train') {
                 const selectedOption = document.querySelector(`div#${currentQuizType}-quiz-area input[name="answer"]:checked`);
                 userAnswers.push(selectedOption ? selectedOption.value : null);
-                if (selectedOption && selectedOption.value === quizQuestions[currentQuestionIndex].answer) score++;
-            } else {
-                // In train mode, score is already handled by the event listener
-                const selected = userAnswers[currentQuestionIndex]; // Already pushed in listener
-                if (selected === quizQuestions[currentQuestionIndex].answer) score++;
             }
+            if (userAnswers[currentQuestionIndex] === quizQuestions[currentQuestionIndex].answer) score++;
             
             currentQuestionIndex++;
             if (currentQuestionIndex < 10) displayQuestion();

@@ -1,9 +1,39 @@
-// Aguarda o carregamento completo do HTML antes de executar o script
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- LÓGICA PARA O DECODIFICADOR DE CÓDIGO Q ---
+    // --- LÓGICA PARA TROCA DE TEMA (LIGHT/DARK) ---
+    const themeSwitcher = document.getElementById('theme-switcher');
+    const body = document.body;
 
-    // 1. Mapeamento de todos os códigos e seus significados
+    // Função para aplicar o tema
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            body.classList.add('dark-theme');
+        } else {
+            body.classList.remove('dark-theme');
+        }
+    };
+
+    // Verifica a preferência do usuário no localStorage ou no sistema
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedTheme) {
+        applyTheme(savedTheme);
+    } else if (prefersDark) {
+        applyTheme('dark');
+    } else {
+        applyTheme('light'); // Padrão
+    }
+
+    // Evento de clique para alternar o tema
+    themeSwitcher.addEventListener('click', () => {
+        const isDark = body.classList.contains('dark-theme');
+        const newTheme = isDark ? 'light' : 'dark';
+        applyTheme(newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+    // --- LÓGICA PARA O DECODIFICADOR DE CÓDIGO Q ---
     const significadosQ = {
         'QAP': 'Está na escuta?',
         'QSL': 'Entendido, mensagem recebida.',
@@ -39,24 +69,17 @@ document.addEventListener('DOMContentLoaded', () => {
         'QUA': 'Você tem notícias de...?',
         'QTI': 'Qual o seu rumo verdadeiro?'
     };
-    // 2. Seleciona os elementos HTML
     const seletorCodigoQ = document.getElementById('q-code-selector');
     const resultadoCodigoQ = document.getElementById('q-code-result');
 
-    // 3. Adiciona um "ouvinte" que dispara uma ação quando o usuário muda a seleção
-    seletorCodigoQ.addEventListener('change', (event) => {
-        const codigoSelecionado = event.target.value;
-        if (codigoSelecionado && significadosQ[codigoSelecionado]) {
-            resultadoCodigoQ.textContent = significadosQ[codigoSelecionado];
-        } else {
-            resultadoCodigoQ.textContent = 'O significado aparecerá aqui...';
-        }
-    });
-
+    if (seletorCodigoQ) {
+        seletorCodigoQ.addEventListener('change', (event) => {
+            const codigoSelecionado = event.target.value;
+            resultadoCodigoQ.textContent = significadosQ[codigoSelecionado] || 'O significado aparecerá aqui...';
+        });
+    }
 
     // --- LÓGICA PARA O CONVERSOR FONÉTICO ---
-
-    // 1. Mapeamento do alfabeto fonético
     const alfabetoFonetico = {
         'A': 'Alfa', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo',
         'F': 'Fox', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett',
@@ -67,35 +90,29 @@ document.addEventListener('DOMContentLoaded', () => {
         '5': 'Cinco', '6': 'Seis', '7': 'Sete', '8': 'Oito', '9': 'Nove'
     };
 
-    // 2. Seleciona os elementos HTML
     const inputFonetico = document.getElementById('phonetic-input');
     const botaoFonetico = document.getElementById('phonetic-button');
     const resultadoFonetico = document.getElementById('phonetic-result');
 
-    // 3. Função que faz a conversão
-    function converterTextoParaFonetico() {
+    const converterTextoParaFonetico = () => {
         const texto = inputFonetico.value.toUpperCase();
         if (texto.trim() === '') {
             resultadoFonetico.textContent = 'A conversão aparecerá aqui...';
             return;
         }
+        const resultado = [...texto].map(char => alfabetoFonetico[char] || char).join(' ');
+        resultadoFonetico.textContent = resultado;
+    };
 
-        let resultado = [];
-        for (const caractere of texto) {
-            // Se o caractere existe no nosso alfabeto, usa a palavra, senão, usa o próprio caractere
-            resultado.push(alfabetoFonetico[caractere] || caractere);
-        }
-        resultadoFonetico.textContent = resultado.join(' ');
+    if (botaoFonetico) {
+        botaoFonetico.addEventListener('click', converterTextoParaFonetico);
     }
 
-    // 4. Adiciona o evento de clique ao botão
-    botaoFonetico.addEventListener('click', converterTextoParaFonetico);
-
-    // Bônus: Também converte quando o usuário aperta Enter no campo de texto
-    inputFonetico.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-            converterTextoParaFonetico();
-        }
-    });
-
+    if (inputFonetico) {
+        inputFonetico.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                converterTextoParaFonetico();
+            }
+        });
+    }
 });

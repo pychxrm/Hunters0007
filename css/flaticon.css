@@ -1,0 +1,230 @@
+/* --- FONTES E CONFIGURAÇÕES GLOBAIS --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+:root {
+    --font-main: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    
+    /* Variáveis do Tema Claro (Padrão) */
+    --bg-color: #F4F7FC;
+    --text-color: #2c3e50;
+    --header-bg-color: #FFFFFF;
+    --glass-bg: rgba(255, 255, 255, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --primary-color: #3498db;
+    --primary-color-hover: #2980b9;
+    --icon-color: #34495e;
+    --input-bg-color: #FFFFFF;
+    --input-text-color: #2c3e50;
+    --input-border-color: #bdc3c7;
+    --shadow-color: rgba(44, 62, 80, 0.15);
+    --icon-sun-display: block;
+    --icon-moon-display: none;
+}
+
+/* Variáveis do Tema Escuro */
+body.dark-theme {
+    --bg-color: #1A1A2E;
+    --text-color: #E0E0E0;
+    --header-bg-color: #162447;
+    --glass-bg: rgba(22, 36, 71, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary-color: #1f6feb;
+    --primary-color-hover: #274i72;
+    --icon-color: #a4baf3;
+    --input-bg-color: #162447;
+    --input-text-color: #E0E0E0;
+    --input-border-color: #0d1a35;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+    --icon-sun-display: none;
+    --icon-moon-display: block;
+}
+
+body {
+    font-family: var(--font-main);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.4s, color 0.4s;
+    overflow-x: hidden;
+}
+
+/* --- BACKGROUND ANIMADO --- */
+.background-shapes {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(45deg, var(--primary-color), var(--bg-color));
+    opacity: 0.2;
+}
+
+/* --- CABEÇALHO --- */
+header {
+    background-color: var(--header-bg-color);
+    box-shadow: 0 2px 10px var(--shadow-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+header h1 { margin: 0; color: var(--primary-color); font-size: 1.8rem; }
+header p { margin: 0; font-size: 1rem; color: var(--text-color); opacity: 0.8; }
+
+/* --- BOTÃO DE TEMA --- */
+#theme-switcher {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    color: var(--primary-color);
+}
+#theme-switcher:hover {
+    transform: scale(1.1);
+    background-color: var(--primary-color);
+    color: white;
+}
+#theme-switcher i {
+    font-size: 1.2rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s;
+}
+#theme-switcher .fa-sun { display: var(--icon-sun-display); }
+#theme-switcher .fa-moon { display: var(--icon-moon-display); }
+
+
+/* --- TÍTULOS DE SEÇÃO COM ÍCONES --- */
+.section-title {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    cursor: default;
+}
+
+.section-title i {
+    font-size: 1.6rem; /* Tamanho do ícone */
+    margin-right: 15px;
+    color: var(--icon-color);
+    transition: transform 0.4s ease-in-out, color 0.4s ease;
+    /* Adiciona um brilho sutil na animação */
+    filter: drop-shadow(0 0 3px rgba(0,0,0,0)); 
+}
+
+/* --- ANIMAÇÃO SUTIL NO HOVER DO TÍTULO --- */
+.section-title:hover i {
+    transform: translateY(-3px) scale(1.05);
+    color: var(--primary-color);
+    filter: drop-shadow(0 0 5px var(--primary-color-hover));
+}
+
+/* --- CONTAINER PRINCIPAL --- */
+main {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    gap: 30px;
+}
+
+/* --- EFEITO GLASSMORPHISM E SEÇÕES --- */
+.glass-effect {
+    background: var(--glass-bg);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* --- FERRAMENTAS INTERATIVAS (inputs, botões, etc.) --- */
+select, input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--input-border-color);
+    font-size: 1em;
+    box-sizing: border-box;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    transition: all 0.3s ease;
+}
+select:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px hsla(from var(--primary-color) h s l / 0.3);
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+button:hover {
+    background-color: var(--primary-color-hover);
+    transform: translateY(-2px);
+}
+
+.result-box {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: var(--input-bg-color);
+    border: 1px dashed var(--primary-color);
+    border-radius: 8px;
+    min-height: 24px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+/* --- LISTAS --- */
+.content-section ul { list-style: none; padding: 0; }
+.content-section li {
+    background-color: rgba(0,0,0,0.05);
+    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: 5px;
+    border-left: 4px solid var(--primary-color);
+}
+.content-section li strong { color: var(--primary-color); }
+
+/* --- LAYOUT DE COLUNAS --- */
+.columns { display: flex; flex-wrap: wrap; gap: 20px; }
+.columns ul { flex: 1; min-width: 250px; }
+
+/* --- RODAPÉ --- */
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.7;
+}

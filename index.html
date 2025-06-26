@@ -4,18 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manual Completo do Código Q e Fonético</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.4.2/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
     <header>
-        <h1>Manual de Comunicação Rápida</h1>
-        <p>Site desenvolvido por Thiago Ramos de Freitas na base da Preguiça enquanto comia um miojo.</p>
+        <div class="header-content">
+            <h1>Manual de Comunicação Rápida</h1>
+            <p>Um guia de referência para códigos de comunicação.</p>
+        </div>
+        <button id="theme-switcher" title="Alternar tema">
+            <i class="fas fa-sun"></i>
+            <i class="fas fa-moon"></i>
+        </button>
     </header>
 
     <main>
-        <section class="interactive-tool">
-            <h2>Decodificador de Código Q</h2>
+        <section class="interactive-tool glass-effect">
+            <h2 class="section-title"><i class="fi fi-rr-wifi-alt"></i> Decodificador de Código Q</h2>
             <p>Selecione um código para ver o significado instantaneamente.</p>
             <select id="q-code-selector">
                 <option value="">-- Selecione um Código --</option>
@@ -58,8 +69,8 @@
             </div>
         </section>
 
-        <section class="interactive-tool">
-            <h2>Conversor Fonético (OTAN)</h2>
+        <section class="interactive-tool glass-effect">
+            <h2 class="section-title"><i class="fi fi-rr-text-check"></i> Conversor Fonético (OTAN)</h2>
             <p>Digite uma palavra ou sigla para soletrar.</p>
             <input type="text" id="phonetic-input" placeholder="Digite aqui (ex: GOLF)">
             <button id="phonetic-button">Converter</button>
@@ -68,23 +79,23 @@
             </div>
         </section>
 
-        <section>
-            <h2>O que é o Código Q?</h2>
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fi fi-rr-info"></i> O que é o Código Q?</h2>
             <p>Código Q é um padrão de comunicação adotado internacionalmente, pela força militar, polícia, SAMU, vigilantes / segurança, aviação e empresas privadas, onde através de uma coleção padronizada de 3 letras de fácil pronúncia, todas começando pela letra Q, perguntas pré-definidas são realizadas de maneira simples, rápida e de fácil compreensão.</p>
             <p>Foi criado em aproximadamente 1909, pelo governo britânico, quando a radiocomunicação foi utilizada pela primeira vez de forma comercial em navios, por voz, onde até então era utilizada somente por código morse.</p>
         </section>
 
-        <section>
-            <h2>Benefícios do Código Q</h2>
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fi fi-rr-badge-check"></i> Benefícios do Código Q</h2>
             <ul>
                 <li>Facilitam a comunicação em línguas diferentes pelo fácil entendimento.</li>
                 <li>Comunicação rápida, economia na utilização de bateria, gerando aumento na autonomia dos radiocomunicadores.</li>
             </ul>
         </section>
 
-        <section>
-            <h2>Código Q Completo</h2>
-            <ul>
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fi fi-rr-list"></i> Código Q Completo</h2>
+            <ul class="code-list">
                 <li><strong>QAP</strong> - Está na escuta?</li>
                 <li><strong>QSL</strong> - Entendido, acusado o recebimento da mensagem.</li>
                 <li><strong>QTH</strong> - Qual endereço, local, posição?</li>
@@ -121,8 +132,8 @@
             </ul>
         </section>
 
-        <section>
-            <h2>Código Fonético Internacional (OTAN)</h2>
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fi fi-rr-stars"></i> Código Fonético Internacional (OTAN)</h2>
             <p>Utilizado para soletrar uma palavra ou código, associando cada letra a uma palavra que se inicia com a letra em questão.</p>
             <div class="columns">
                 <ul>
@@ -161,7 +172,7 @@
     </main>
 
     <footer>
-        <p>Site criado como exemplo de projeto com hospedagem gratuita no GitHub Pages.</p>
+        <p>&copy; 2025 Manual de Comunicação Rápida. Desenvolvido como projeto de exemplo.</p>
     </footer>
 
     <script src="script.js"></script>

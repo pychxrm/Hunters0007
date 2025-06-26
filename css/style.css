@@ -1,0 +1,193 @@
+/* --- FONTES E CONFIGURAÇÕES GLOBAIS --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+:root {
+    --font-main: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    
+    /* --- Variáveis do Tema Claro (Padrão) --- */
+    --bg-color-static: #F4F7FC;
+    --text-color: #2c3e50;
+    --header-bg-color: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --primary-color: #3498db;
+    --primary-color-hover: #2980b9;
+    --icon-color: #34495e;
+    --input-bg-color: #ffffff;
+    --input-text-color: #2c3e50;
+    --input-border-color: #bdc3c7;
+    --shadow-color: rgba(44, 62, 80, 0.15);
+    --icon-sun-display: block;
+    --icon-moon-display: none;
+}
+
+/* --- Variáveis do Tema Escuro --- */
+body.dark-theme {
+    --bg-color-static: #0D1117;
+    --text-color: #c9d1d9;
+    --header-bg-color: #161B22;
+    --glass-bg: rgba(22, 27, 34, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary-color: #58a6ff;
+    --primary-color-hover: #80b6f8;
+    --icon-color: #89a3c7;
+    --input-bg-color: #0D1117;
+    --input-text-color: #c9d1d9;
+    --input-border-color: #30363d;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --icon-sun-display: none;
+    --icon-moon-display: block;
+}
+
+/* --- Animação de Fundo Arco-Íris --- */
+@keyframes subtle-rainbow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+body {
+    font-family: var(--font-main);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+    background-color: var(--bg-color-static);
+    
+    background-image: linear-gradient(125deg, 
+        hsla(0, 50%, 80%, 0.1), 
+        hsla(30, 50%, 80%, 0.1), 
+        hsla(60, 50%, 80%, 0.1),
+        hsla(120, 50%, 80%, 0.1),
+        hsla(180, 50%, 80%, 0.1),
+        hsla(240, 50%, 80%, 0.1)
+    );
+    background-size: 400% 400%;
+    animation: subtle-rainbow 25s ease infinite;
+
+    transition: color 0.4s;
+    overflow-x: hidden;
+}
+
+/* --- Cabeçalho --- */
+header {
+    background-color: var(--header-bg-color);
+    box-shadow: 0 2px 10px var(--shadow-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background-color 0.4s;
+}
+header h1 { margin: 0; color: var(--primary-color); font-size: 1.8rem; transition: color 0.4s; }
+header p { margin: 0; font-size: 1rem; color: var(--text-color); opacity: 0.8; }
+
+/* --- Botão de Tema --- */
+#theme-switcher {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    color: var(--primary-color);
+}
+#theme-switcher:hover { transform: scale(1.1) rotate(15deg); background-color: var(--primary-color); color: var(--header-bg-color); }
+#theme-switcher i { font-size: 1.2rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: opacity 0.3s, transform 0.3s; }
+#theme-switcher .fa-sun { display: var(--icon-sun-display); }
+#theme-switcher .fa-moon { display: var(--icon-moon-display); }
+body.dark-theme #theme-switcher:hover .fa-moon { transform: translate(-50%, -50%) scale(1.2); }
+body:not(.dark-theme) #theme-switcher:hover .fa-sun { transform: translate(-50%, -50%) scale(1.2); }
+
+/* --- Títulos de Seção --- */
+.section-title {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    cursor: default;
+}
+.section-title i { font-size: 1.6rem; margin-right: 15px; color: var(--icon-color); transition: transform 0.4s ease-in-out, color 0.4s ease; filter: drop-shadow(0 0 3px rgba(0,0,0,0)); }
+.section-title:hover i { transform: translateY(-3px) scale(1.05); color: var(--primary-color); filter: drop-shadow(0 0 5px var(--primary-color)); }
+
+/* --- Layout Principal --- */
+main {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: grid;
+    gap: 30px;
+}
+
+/* --- Efeito Glassmorphism --- */
+.glass-effect {
+    background: var(--glass-bg);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: background-color 0.4s, border 0.4s, box-shadow 0.4s;
+}
+
+/* --- Elementos de Formulário --- */
+select, input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--input-border-color);
+    font-size: 1em;
+    box-sizing: border-box;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    transition: all 0.3s ease;
+}
+select:focus, input[type="text"]:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 30%, transparent); }
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+button:hover { background-color: var(--primary-color-hover); transform: translateY(-2px); }
+
+.result-box { margin-top: 15px; padding: 15px; background-color: var(--input-bg-color); border: 1px dashed var(--primary-color); border-radius: 8px; min-height: 48px; display: grid; place-items: center; font-weight: 500; text-align: center; color: var(--text-color); transition: all 0.4s; }
+
+/* --- Listas e Colunas --- */
+.content-section ul { list-style: none; padding: 0; }
+.content-section ul:not(.code-list) li { background-color: color-mix(in srgb, var(--glass-bg) 50%, transparent); margin-bottom: 8px; padding: 12px; border-radius: 5px; border-left: 4px solid var(--primary-color); transition: background-color 0.4s; }
+.content-section li strong { color: var(--primary-color); transition: color 0.4s; }
+.code-list li { padding: 4px 0; }
+.columns { display: flex; flex-wrap: wrap; gap: 20px; }
+.columns ul { flex: 1; min-width: 250px; }
+
+/* --- Rodapé --- */
+footer { text-align: center; padding: 20px; margin-top: 40px; font-size: 0.9em; color: var(--text-color); opacity: 0.7; }
+
+/* --- Media Queries para Responsividade --- */
+@media (max-width: 768px) {
+    body { font-size: 15px; }
+    main { padding: 0 15px; margin: 25px auto; gap: 20px; }
+    .glass-effect { padding: 20px; }
+    header { padding: 1rem; flex-direction: column; align-items: center; text-align: center; gap: 15px; }
+    header h1 { font-size: 1.5rem; }
+    header p { font-size: 0.9rem; }
+    .columns { flex-direction: column; }
+}

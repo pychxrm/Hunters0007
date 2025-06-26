@@ -53,18 +53,9 @@ body {
     padding: 0;
     color: var(--text-color);
     background-color: var(--bg-color-static);
-    
-    background-image: linear-gradient(125deg, 
-        hsla(0, 50%, 80%, 0.1), 
-        hsla(30, 50%, 80%, 0.1), 
-        hsla(60, 50%, 80%, 0.1),
-        hsla(120, 50%, 80%, 0.1),
-        hsla(180, 50%, 80%, 0.1),
-        hsla(240, 50%, 80%, 0.1)
-    );
+    background-image: linear-gradient(125deg, hsla(0, 50%, 80%, 0.1), hsla(30, 50%, 80%, 0.1), hsla(60, 50%, 80%, 0.1), hsla(120, 50%, 80%, 0.1), hsla(180, 50%, 80%, 0.1), hsla(240, 50%, 80%, 0.1));
     background-size: 400% 400%;
     animation: subtle-rainbow 25s ease infinite;
-
     transition: color 0.4s;
     overflow-x: hidden;
 }
@@ -85,25 +76,44 @@ header {
 header h1 { margin: 0; color: var(--primary-color); font-size: 1.8rem; transition: color 0.4s; }
 header p { margin: 0; font-size: 1rem; color: var(--text-color); opacity: 0.8; }
 
-/* --- Botão de Tema --- */
+/* --- Estilos para o botão de tema com texto --- */
 #theme-switcher {
-    background: transparent;
-    border: 2px solid var(--primary-color);
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--input-border-color);
     color: var(--primary-color);
+    border-radius: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    gap: 8px;
+    transition: all 0.3s ease;
 }
-#theme-switcher:hover { transform: scale(1.1) rotate(15deg); background-color: var(--primary-color); color: var(--header-bg-color); }
-#theme-switcher i { font-size: 1.2rem; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: opacity 0.3s, transform 0.3s; }
+#theme-switcher:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+.theme-icon-container {
+    position: relative;
+    width: 20px;
+    height: 20px;
+}
+#theme-switcher i {
+    font-size: 1.1rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.3s, transform 0.3s;
+}
 #theme-switcher .fa-sun { display: var(--icon-sun-display); }
 #theme-switcher .fa-moon { display: var(--icon-moon-display); }
-body.dark-theme #theme-switcher:hover .fa-moon { transform: translate(-50%, -50%) scale(1.2); }
-body:not(.dark-theme) #theme-switcher:hover .fa-sun { transform: translate(-50%, -50%) scale(1.2); }
+#theme-text {
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
 
 /* --- Títulos de Seção --- */
 .section-title {
@@ -119,13 +129,7 @@ body:not(.dark-theme) #theme-switcher:hover .fa-sun { transform: translate(-50%,
 .section-title:hover i { transform: translateY(-3px) scale(1.05); color: var(--primary-color); filter: drop-shadow(0 0 5px var(--primary-color)); }
 
 /* --- Layout Principal --- */
-main {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0 20px;
-    display: grid;
-    gap: 30px;
-}
+main { max-width: 900px; margin: 40px auto; padding: 0 20px; display: grid; gap: 30px; }
 
 /* --- Efeito Glassmorphism --- */
 .glass-effect {
@@ -154,20 +158,8 @@ select, input[type="text"] {
     transition: all 0.3s ease;
 }
 select:focus, input[type="text"]:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 30%, transparent); }
-
-button {
-    width: 100%;
-    padding: 12px;
-    background-color: var(--primary-color);
-    color: #fff;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    border-radius: 8px;
-    transition: background-color 0.3s, transform 0.2s;
-}
+button { width: 100%; padding: 12px; background-color: var(--primary-color); color: #fff; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; transition: background-color 0.3s, transform 0.2s; }
 button:hover { background-color: var(--primary-color-hover); transform: translateY(-2px); }
-
 .result-box { margin-top: 15px; padding: 15px; background-color: var(--input-bg-color); border: 1px dashed var(--primary-color); border-radius: 8px; min-height: 48px; display: grid; place-items: center; font-weight: 500; text-align: center; color: var(--text-color); transition: all 0.4s; }
 
 /* --- Listas e Colunas --- */

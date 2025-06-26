@@ -19,8 +19,11 @@
             <p>Um guia de referência para códigos de comunicação.</p>
         </div>
         <button id="theme-switcher" title="Alternar tema">
-            <i class="fas fa-sun"></i>
-            <i class="fas fa-moon"></i>
+            <div class="theme-icon-container">
+                 <i class="fas fa-sun"></i>
+                 <i class="fas fa-moon"></i>
+            </div>
+            <span id="theme-text"></span>
         </button>
     </header>
 
@@ -64,9 +67,7 @@
                 <option value="QUA">QUA</option>
                 <option value="QTI">QTI</option>
             </select>
-            <div id="q-code-result" class="result-box">
-                O significado aparecerá aqui...
-            </div>
+            <div id="q-code-result" class="result-box">O significado aparecerá aqui...</div>
         </section>
 
         <section class="interactive-tool glass-effect">
@@ -74,9 +75,7 @@
             <p>Digite uma palavra ou sigla para soletrar.</p>
             <input type="text" id="phonetic-input" placeholder="Digite aqui (ex: GOLF)">
             <button id="phonetic-button">Converter</button>
-            <div id="phonetic-result" class="result-box">
-                A conversão aparecerá aqui...
-            </div>
+            <div id="phonetic-result" class="result-box">A conversão aparecerá aqui...</div>
         </section>
 
         <section class="content-section glass-effect">
@@ -168,7 +167,6 @@
                 </ul>
             </div>
         </section>
-
     </main>
 
     <footer>

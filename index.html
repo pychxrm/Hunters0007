@@ -443,6 +443,41 @@
             </div>
         </section>
 
+        <!-- Informational Sections -->
+        <section class="content-section glass-effect">
+            <div class="columns">
+                <div>
+                    <h2 class="section-title"><i class="fa-solid fa-circle-question"></i> O que é o Código Q?</h2>
+                    <p>O Código Q é um padrão de comunicação adotado internacionalmente que permite transmitir ideias complexas de forma rápida e inequívoca através de códigos de três letras, todos começando com 'Q'.</p>
+                </div>
+                <div>
+                    <h2 class="section-title"><i class="fa-solid fa-star"></i> Benefícios</h2>
+                    <ul>
+                        <li><strong>Universalidade:</strong> Facilita a comunicação entre operadores de diferentes idiomas.</li>
+                        <li><strong>Eficiência:</strong> Acelera a comunicação, economizando tempo e bateria.</li>
+                        <li><strong>Clareza:</strong> Reduz a ambiguidade em ambientes com ruído.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Full Q-Code List with Search -->
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-solid fa-list-ol"></i> Referência Completa: Código Q</h2>
+            <input type="text" id="q-code-search" placeholder="🔎 Buscar por código ou significado...">
+            <div id="q-code-list-container">
+                <ul class="code-list" id="q-code-full-list"></ul>
+            </div>
+        </section>
+
+        <!-- Full Phonetic Alphabet List -->
+        <section class="content-section glass-effect">
+            <h2 class="section-title"><i class="fa-solid fa-book-atlas"></i> Código Fonético Internacional (OTAN)</h2>
+            <p>Utilizado para soletrar palavras e códigos, associando cada letra a uma palavra padrão para evitar confusão.</p>
+            <p><strong>Observação:</strong> No Brasil, é comum utilizar a expressão <strong>"Xadrez"</strong> para a letra X.</p>
+            <div class="columns" id="phonetic-full-list"></div>
+        </section>
+
         <!-- Quiz Section -->
         <section class="content-section glass-effect">
             <h2 class="section-title"><i class="fa-solid fa-user-graduate"></i> Provas e Desafios</h2>
@@ -479,40 +514,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Informational Sections -->
-        <section class="content-section glass-effect">
-            <div class="columns">
-                <div>
-                    <h2 class="section-title"><i class="fa-solid fa-circle-question"></i> O que é o Código Q?</h2>
-                    <p>O Código Q é um padrão de comunicação adotado internacionalmente que permite transmitir ideias complexas de forma rápida e inequívoca através de códigos de três letras, todos começando com 'Q'.</p>
-                </div>
-                <div>
-                    <h2 class="section-title"><i class="fa-solid fa-star"></i> Benefícios</h2>
-                    <ul>
-                        <li><strong>Universalidade:</strong> Facilita a comunicação entre operadores de diferentes idiomas.</li>
-                        <li><strong>Eficiência:</strong> Acelera a comunicação, economizando tempo e bateria.</li>
-                        <li><strong>Clareza:</strong> Reduz a ambiguidade em ambientes com ruído.</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
-
-        <!-- Full Q-Code List with Search -->
-        <section class="content-section glass-effect">
-            <h2 class="section-title"><i class="fa-solid fa-list-ol"></i> Referência Completa: Código Q</h2>
-            <input type="text" id="q-code-search" placeholder="🔎 Buscar por código ou significado...">
-            <div id="q-code-list-container">
-                <ul class="code-list" id="q-code-full-list"></ul>
-            </div>
-        </section>
-
-        <!-- Full Phonetic Alphabet List -->
-        <section class="content-section glass-effect">
-            <h2 class="section-title"><i class="fa-solid fa-book-atlas"></i> Código Fonético Internacional (OTAN)</h2>
-            <p>Utilizado para soletrar palavras e códigos, associando cada letra a uma palavra padrão para evitar confusão.</p>
-            <div class="columns" id="phonetic-full-list"></div>
-        </section>
     </main>
 
     <footer>
@@ -541,13 +542,60 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         
-        // --- DATA ---
+        // --- DATA (UPDATED BASED ON USER'S IMAGES) ---
         const qCodes = {
-            'QAP': 'Na escuta, à disposição.', 'QRA': 'Qual o nome do operador/estação?', 'QRB': 'A qual distância você está?', 'QRL': 'Estou ocupado. Favor não interferir.', 'QRM': 'Estou sofrendo interferência de outra estação.', 'QRN': 'Estou sofrendo interferência estática/natural.', 'QRQ': 'Transmita mais depressa.', 'QRS': 'Transmita mais devagar.', 'QRT': 'Vou parar de transmitir. / Fora do ar.', 'QRU': 'Tem algo para mim? / Novidades?', 'QRV': 'Estou pronto. / Às suas ordens.', 'QRX': 'Aguarde um momento.', 'QRZ': 'Quem está me chamando?', 'QSA': 'Qual a intensidade dos meus sinais? (1-5)', 'QSL': 'Entendido. / Mensagem recebida e compreendida.', 'QSM': 'Devo repetir a última mensagem?', 'QSO': 'É um comunicado / contato.', 'QSP': 'Pode retransmitir para...? (fazer ponte)', 'QTA': 'Anule a mensagem anterior.', 'QTC': 'Tenho mensagem para você.', 'QTH': 'Qual é a sua localização/endereço?', 'QTI': 'Qual é o seu rumo verdadeiro?', 'QTR': 'Qual é a hora exata?', 'QTU': 'Qual o horário de funcionamento da sua estação?', 'QSJ': 'Dinheiro, taxa, pagamento.', 'QAR': 'Desligar / Abandonar a escuta.', 'QSV': 'Viatura.', 'QSD': 'Motorista.', 'TKS': 'Obrigado(a).'
+            'QRA': 'Nome do operador',
+            'QAP': 'Na escuta',
+            'QRV': 'Estou a disposição',
+            'QSA': 'Intensidade do sinal',
+            'QSL': 'Entendido',
+            'QSO': 'Contato pessoal',
+            'QTA': 'Cancelar a última mensagem',
+            'QTC': 'Mensagem',
+            'QTH': 'Local, endereço',
+            'QTI': 'Estou a caminho / Rumo verdadeiro',
+            'QSM': 'Repita a mensagem',
+            'QTR': 'Hora certa',
+            'QRM': 'Interferência',
+            'QRU': 'Novidade, problema',
+            'QRX': 'Aguarde',
+            'QSP': 'Ponte, auxílio',
+            'QSJ': 'Dinheiro, taxa',
+            'QTO': 'Banheiro',
+            'QTU': 'Horário de funcionamento',
+            'QTJ': 'Velocidade do veículo',
+            'QRF': 'Refeição',
+            'VTR': 'Viatura, veículo',
+            'TKS': 'Obrigado'
         };
 
         const phoneticAlphabet = {
-            'A': 'Alfa', 'B': 'Bravo', 'C': 'Charlie', 'D': 'Delta', 'E': 'Echo', 'F': 'Foxtrot', 'G': 'Golf', 'H': 'Hotel', 'I': 'India', 'J': 'Juliett', 'K': 'Kilo', 'L': 'Lima', 'M': 'Mike', 'N': 'November', 'O': 'Oscar', 'P': 'Papa', 'Q': 'Quebec', 'R': 'Romeo', 'S': 'Sierra', 'T': 'Tango', 'U': 'Uniform', 'V': 'Victor', 'W': 'Whiskey', 'X': 'X-Ray', 'Y': 'Yankee', 'Z': 'Zulu', '0': 'Zero', '1': 'Uno', '2': 'Dois', '3': 'Três', '4': 'Quatro', '5': 'Cinco', '6': 'Meia', '7': 'Sete', '8': 'Oito', '9': 'Nove'
+            'A': 'Alfa',
+            'B': 'Bravo',
+            'C': 'Charlie',
+            'D': 'Delta',
+            'E': 'Echo',
+            'F': 'Fox-Trot',
+            'G': 'Golf',
+            'H': 'Hotel',
+            'I': 'Índia',
+            'J': 'Juliett',
+            'K': 'Kilo',
+            'L': 'Lima',
+            'M': 'Mike',
+            'N': 'November',
+            'O': 'Oscar',
+            'P': 'Papa',
+            'Q': 'Quebec',
+            'R': 'Romeo',
+            'S': 'Sierra',
+            'T': 'Tango',
+            'U': 'Uniform',
+            'V': 'Victor',
+            'W': 'Whiskey',
+            'X': 'Xadrez', // Prioritizing "Xadrez" as per user's image note
+            'Y': 'Yankee',
+            'Z': 'Zulu'
         };
 
         // --- ELEMENTS ---
@@ -614,6 +662,7 @@
             const sortedQCodes = Object.entries(qCodes).sort((a, b) => a[0].localeCompare(b[0]));
             const sortedPhonetic = Object.entries(phoneticAlphabet);
 
+            qCodeSelector.innerHTML = '<option value="">-- Selecione um Código --</option>'; // Clear before populating
             sortedQCodes.forEach(([code]) => {
                 qCodeSelector.appendChild(new Option(code, code));
             });
@@ -662,6 +711,10 @@
             const sourceData = type === 'q-code' ? qCodes : phoneticAlphabet;
             const keys = Object.keys(sourceData);
             const allValues = Object.values(sourceData);
+            if (keys.length < 10) {
+                 console.error("Not enough data to generate a 10-question quiz.");
+                 return [];
+            }
             const selectedKeys = shuffleArray([...keys]).slice(0, 10);
 
             return selectedKeys.map(correctKey => {
@@ -707,9 +760,10 @@
             elements.a.innerHTML = '';
             questionData.options.forEach((option, index) => {
                 const li = document.createElement('li');
+                const optionId = `${currentQuizType}-option-${currentQuestionIndex}-${index}`;
                 li.innerHTML = `
-                    <input type="radio" id="option${index}" name="answer" value="${option}">
-                    <label for="option${index}">${option}</label>
+                    <input type="radio" id="${optionId}" name="answer" value="${option}">
+                    <label for="${optionId}">${option}</label>
                 `;
                 elements.a.appendChild(li);
             });
@@ -758,6 +812,7 @@
         const startQuiz = (type) => {
             currentQuizType = type;
             quizQuestions = generateQuestions(type);
+            if(quizQuestions.length === 0) return; // Don't start if no questions generated
             currentQuestionIndex = 0;
             score = 0;
             userAnswers = [];

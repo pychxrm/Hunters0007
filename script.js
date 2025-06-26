@@ -14,10 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (body && themeText) { 
             if (theme === 'dark') {
                 body.classList.add('dark-theme');
-                themeText.textContent = 'Dia';
+                themeText.textContent = 'Noite';
             } else {
                 body.classList.remove('dark-theme');
-                themeText.textContent = 'Noite';
+                themeText.textContent = 'Dia';
             }
         }
     };
